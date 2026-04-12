@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Julia Shapiro Method</title>
+  <link rel="stylesheet" href="https://use.typekit.net/wex4shz.css">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #008544;
+      --black: #000000;
+      --white: #ffffff;
+      --gray: #888888;
+      --gray-dark: #555555;
+      --red: #cc3333;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: var(--white);
+      font-family: "cofo-sans-pixel", sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background layers ── */
+    .bg-texture {
+      position: fixed;
+      inset: 0;
+      background-image: url('Background Elements/textured-background.jpg');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.68);
+      z-index: 1;
+    }
+
+    #bgGrid {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    /* Both grid modes create a child element that fills the container */
+    #bgGrid > svg,
+    #bgGrid > canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .bg-elements {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .bg-el {
+      position: fixed;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    /* ── App shell ── */
+    .app {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 680px;
+    }
+    .screen.active { display: block; }
+
+    /* ── Box ── */
+    .box {
+      background: #000;
+      border: 1px solid #ffffff;
+      padding: 40px 44px;
+      box-shadow: 20px 20px 0 var(--green);
+    }
+    /* Landing page keeps the green border */
+    .box-landing {
+      border-color: var(--green);
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-family: "Source Code Pro", monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 0.85rem;
+      line-height: 1.85;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+
+    em { font-style: italic; }
+
+    .step-indicator {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.65rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+
+    .label {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* ── Warning block ── */
+    .warning-block {
+      border: 1px solid var(--green);
+      padding: 16px 20px;
+      margin: 20px 0 28px;
+    }
+    .warning-block p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--white);
+    }
+    .warning-label {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.72rem;
+      color: var(--green);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 10px 22px;
+      border: 1px solid var(--green);
+      background: transparent;
+      color: var(--green);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: background 0.15s, color 0.15s;
+      display: inline-block;
+    }
+    .btn:hover { background: var(--green); color: var(--black); }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn:disabled:hover { background: transparent; color: var(--green); }
+
+    .btn-ghost {
+      border-color: var(--gray-dark);
+      color: var(--gray);
+    }
+    .btn-ghost:hover { background: var(--gray-dark); color: var(--white); }
+
+    .btn-red {
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .btn-red:hover { background: var(--red); color: var(--white); }
+
+    .btn-beg {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border: 1px solid #383838;
+      color: #777;
+      background: transparent;
+      cursor: pointer;
+      padding: 14px 20px;
+      display: block;
+      width: 100%;
+      text-align: center;
+      line-height: 1.75;
+      transition: border-color 0.2s, color 0.2s;
+      margin-top: 12px;
+    }
+    .btn-beg:hover { border-color: #666; color: #aaa; }
+
+    /* ── Nav ── */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 32px;
+      gap: 12px;
+    }
+    .nav-center {
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #1e1e1e;
+      margin: 24px 0;
+    }
+
+    /* ── Inputs ── */
+    input[type="text"],
+    input[type="number"] {
+      font-family: "cofo-sans-pixel", sans-serif;
+      font-weight: 400;
+      background: #0a0a0a;
+      border: 1px solid #2a2a2a;
+      border-bottom-color: var(--green);
+      color: var(--white);
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: var(--green);
+    }
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder {
+      color: #444;
+    }
+
+    /* ── Thought bubbles ── */
+    .thoughts-wrap {
+      border: 1px solid #1a1a1a;
+      background: #050505;
+      min-height: 110px;
+      padding: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-content: flex-start;
+      margin: 14px 0 8px;
+    }
+
+    .thought-bubble {
+      border: 1px solid #2a2a2a;
+      padding: 5px 10px 5px 12px;
+      font-size: 0.78rem;
+      color: #ccc;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .thought-bubble .thought-del {
+      background: none;
+      border: none;
+      color: #555;
+      cursor: pointer;
+      font-size: 0.75rem;
+      line-height: 1;
+      padding: 0;
+      transition: color 0.12s;
+    }
+    .thought-bubble .thought-del:hover { color: var(--red); }
+
+    .counter {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.65rem;
+      color: var(--gray);
+      text-align: right;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+    .counter.ready { color: var(--green); }
+
+    /* ── Tag card ── */
+    .tag-card {
+      border: 1px solid #1e1e1e;
+      padding: 36px 24px 28px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .tag-card .thought-text {
+      font-size: 1.1rem;
+      color: var(--white);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .tag-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .tag-btn {
+      font-family: "Source Code Pro", monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 22px;
+      border: 1px solid #333;
+      background: transparent;
+      color: #777;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.15s;
+      min-width: 72px;
+    }
+    .tag-btn:hover { border-color: var(--green); color: var(--green); }
+    .tag-btn.selected { border-color: var(--green); color: var(--green); background: #001a0d; }
+
+    .tag-progress {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.65rem;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    /* ── Pros/Cons ── */
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--green);
+      margin: 16px 0;
+    }
+    .pros-col, .cons-col {
+      padding: 16px;
+    }
+    .pros-col { border-right: 1px solid var(--green); }
+    .list-col-header {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.68rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px;
+    }
+    .list-item-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 7px;
+    }
+    .list-item-row input[type="text"] {
+      flex: 1;
+      border: none;
+      border-bottom: 1px solid #1e1e1e;
+      background: transparent;
+      padding: 4px 2px;
+      font-size: 0.78rem;
+    }
+    .list-item-row input[type="text"]:focus {
+      border-bottom-color: var(--green);
+    }
+    .del-btn {
+      background: none;
+      border: none;
+      color: #333;
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0 3px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .del-btn:hover { color: var(--red); }
+    .add-entry {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.62rem;
+      background: none;
+      border: 1px solid #1e1e1e;
+      color: #444;
+      cursor: pointer;
+      padding: 4px 10px;
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.15s;
+    }
+    .add-entry:hover { border-color: var(--green); color: var(--green); }
+
+    /* ── Traits (Step 3) ── */
+    .trait-brainstorm-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #111;
+    }
+    .trait-brainstorm-item span {
+      font-size: 0.82rem;
+      color: #ccc;
+      flex: 1;
+    }
+    .trait-brainstorm-item .trait-del {
+      background: none;
+      border: none;
+      color: #555;
+      cursor: pointer;
+      font-size: 0.75rem;
+      line-height: 1;
+      padding: 0 2px;
+      transition: color 0.12s;
+    }
+    .trait-brainstorm-item .trait-del:hover { color: var(--red); }
+
+    /* Drag-to-rank traits */
+    .trait-rank-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 4px;
+      border-bottom: 1px solid #111;
+      cursor: grab;
+      user-select: none;
+      transition: opacity 0.15s, background 0.1s;
+    }
+    .trait-rank-item:active { cursor: grabbing; }
+    .trait-rank-item.dragging { opacity: 0.25; }
+    .trait-rank-item.drag-over { border-top: 2px solid var(--green); margin-top: -1px; }
+    .trait-rank-item.rank-beyond .rank-text { color: #3a3a3a; }
+    .trait-rank-item.rank-beyond .partner-check label { color: #2a2a2a; }
+    .trait-rank-item.rank-beyond .rank-num { color: #2a2a2a; }
+    .trait-rank-item.rank-beyond .drag-handle { color: #222; }
+
+    .drag-handle {
+      color: #2a2a2a;
+      font-size: 0.75rem;
+      letter-spacing: -1px;
+      flex-shrink: 0;
+      cursor: grab;
+    }
+
+    .rank-divider {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.58rem;
+      color: #2a2a2a;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      text-align: center;
+      padding: 8px 0;
+      border-top: 1px dashed #1a1a1a;
+      border-bottom: 1px dashed #1a1a1a;
+      margin: 6px 0;
+    }
+
+    .rank-num {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.68rem;
+      color: var(--green);
+      min-width: 22px;
+      flex-shrink: 0;
+    }
+    .rank-text {
+      flex: 1;
+      font-size: 0.82rem;
+      color: #ccc;
+    }
+    .partner-check {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+    .partner-check input[type="checkbox"] {
+      accent-color: var(--green);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+    .partner-check label {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.58rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+
+    /* ── Auto-score display ── */
+    .score-display-big {
+      font-family: "Source Code Pro", monospace;
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: var(--green);
+      text-align: center;
+      margin: 28px 0 8px;
+      letter-spacing: 0.04em;
+    }
+    .score-context {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.65rem;
+      color: #444;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+    }
+
+    /* ── Gate ── */
+    .gate-alert {
+      font-family: "Source Code Pro", monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--red);
+      border: 1px solid var(--red);
+      padding: 16px 24px;
+      text-align: center;
+      letter-spacing: 0.1em;
+      margin-bottom: 24px;
+    }
+    .gate-question {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.78rem;
+      text-align: center;
+      color: #aaa;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    /* ── Pattern options ── */
+    .pattern-list {
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pattern-opt {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border: 1px solid #1e1e1e;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .pattern-opt:hover { border-color: #444; }
+    .pattern-opt.selected { border-color: var(--green); }
+    .pattern-opt input[type="radio"] {
+      accent-color: var(--green);
+      flex-shrink: 0;
+    }
+    .pattern-opt-label {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.75rem;
+      color: #ccc;
+      letter-spacing: 0.04em;
+    }
+    .pattern-opt.selected .pattern-opt-label { color: var(--white); }
+    .custom-pair {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .custom-pair input[type="text"] {
+      width: 120px;
+      font-size: 0.75rem;
+      padding: 5px 8px;
+      font-family: "Source Code Pro", monospace;
+    }
+    .pair-slash {
+      font-family: "Source Code Pro", monospace;
+      color: var(--green);
+      font-size: 0.85rem;
+    }
+
+    /* ── Pendulum ── */
+    .pendulum-scene {
+      text-align: center;
+      margin: 16px 0 8px;
+      position: relative;
+    }
+    .pendulum-pivot-svg {
+      display: inline-block;
+      vertical-align: bottom;
+    }
+    .pendulum-swing {
+      display: inline-block;
+      transform-origin: 50% 0%;
+      animation: pendulumSwing 2.8s cubic-bezier(0.37,0,0.63,1) infinite alternate;
+      overflow: visible;
+    }
+    @keyframes pendulumSwing {
+      0%   { transform: rotate(-38deg); }
+      100% { transform: rotate(38deg); }
+    }
+    .pendulum-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.68rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 10px;
+      padding: 0 4px;
+    }
+
+    /* ── Partner axis (x-axis labels) ── */
+    .partner-axis {
+      position: relative;
+      min-height: 44px;
+      margin: 6px 4px 0;
+      border-top: 1px solid #1a1a1a;
+    }
+    .axis-tick {
+      position: absolute;
+      top: 0;
+      width: 1px;
+      height: 6px;
+      transform: translateX(-50%);
+    }
+    .axis-name {
+      position: absolute;
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    /* ── Placement phase ── */
+    .placement-phase {
+      border: 1px solid #1a1a1a;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .placement-phase p {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.72rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+    .spectrum-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.62rem;
+      color: #555;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+    .prev-partner-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .prev-partner-row input[type="text"] { flex: 1; }
+    .placed-partner {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.7rem;
+      color: var(--green);
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .placed-partner-name::before {
+      content: "✓ ";
+      color: var(--green);
+    }
+    .del-partner-btn {
+      background: none;
+      border: none;
+      color: #333;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0 3px;
+      line-height: 1;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+    .del-partner-btn:hover { color: var(--red); }
+    .perceive-text {
+      font-family: "cofo-sans-pixel", sans-serif;
+      font-size: 1.3rem;
+      color: var(--white);
+      text-align: center;
+      letter-spacing: 0.04em;
+      margin: 20px 0 12px;
+      line-height: 1.5;
+    }
+
+    /* ── Results ── */
+    .results-block {
+      border: 1px solid #1a1a1a;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+    .results-block-title {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.65rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .results-block p {
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+      color: #bbb;
+    }
+    .results-bubbles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .results-bubble {
+      border: 1px solid #2a2a2a;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      color: #aaa;
+    }
+    .results-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .results-col-head {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.62rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .results-trait-row {
+      font-size: 0.78rem;
+      padding: 4px 0;
+      border-bottom: 1px solid #0d0d0d;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .results-trait-row.has-trait { color: var(--green); }
+    .results-trait-row.no-trait { color: #555; }
+    .has-mark {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.6rem;
+      color: var(--green);
+    }
+
+    .verdict-prompt-section {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #1a1a1a;
+    }
+    .verdict-prompt-section p {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.65rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+
+    .restart-section {
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid #111;
+    }
+
+    /* ── Verdict ── */
+    .determination-label {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.65rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 24px;
+    }
+    .verdict-body {
+      font-size: 0.88rem;
+      line-height: 2;
+      color: var(--white);
+      border-left: 2px solid var(--green);
+      padding-left: 20px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Floating element animations ── */
+    @keyframes floatA {
+      0%   { transform: translateY(0) rotate(0deg); }
+      25%  { transform: translateY(-16px) rotate(22deg); }
+      50%  { transform: translateY(-6px) rotate(5deg); }
+      75%  { transform: translateY(-22px) rotate(-30deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    @keyframes floatB {
+      0%   { transform: translateX(0) rotate(0deg); }
+      30%  { transform: translateX(14px) rotate(40deg); }
+      65%  { transform: translateX(-10px) rotate(-28deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+    @keyframes floatC {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      25%  { transform: translate(12px, -14px) rotate(45deg); }
+      50%  { transform: translate(4px, -20px) rotate(18deg); }
+      75%  { transform: translate(-10px, 8px) rotate(-38deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    @keyframes floatD {
+      0%,100%  { transform: translate(0, 0) rotate(0deg); }
+      40%      { transform: translate(-12px, -18px) rotate(-45deg); }
+      70%      { transform: translate(8px, -10px) rotate(25deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-texture"></div>
+  <div class="bg-overlay"></div>
+  <div id="bgGrid"></div>
+  <div class="bg-elements" id="bgElements"></div>
+
+  <div class="app">
+    <div id="screenWrap">
+
+      <!-- ══════════════ LANDING ══════════════ -->
+      <div class="screen active" id="s-landing">
+        <div class="box box-landing">
+          <h1>The Julia Shapiro Method</h1>
+          <p><em>The</em> <em>Julia Shapiro Method</em> is designed to help those experiencing relationship turmoil decide whether or not they should call it quits. The following Steps serve as a powerful tool, refined over the years, to help The Participant gain insights into their Current Romantic Relationship.</p>
+          <div class="warning-block">
+            <div class="warning-label">⚠ Warning</div>
+            <p>The Method is not to be used lightly. <em>The</em> <em>Julia Shapiro Method</em> is a dangerous tool. Only complete The Steps when you truly feel ready to witness The Results.</p>
+          </div>
+          <div class="nav" style="justify-content:flex-end;">
+            <button class="btn" onclick="goTo('s-step1')">I am ready to begin.</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 1: MIND MAP ══════════════ -->
+      <div class="screen" id="s-step1">
+        <div class="box">
+          <div class="step-indicator">Step 1 of 4</div>
+          <h1>Miss Match's Mind Map</h1>
+          <p>Create a Mind Map with at least 15–25 branches of anything that comes to mind when you think about the person you are romantically entwined with and your relationship to Said Person. Feel free to be abstract and free associate. This exercise works best when you are nonjudgmental with yourself, allowing any thoughts that arise to come through without resistance.</p>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <input type="text" id="thoughtInput" placeholder="type a thought and press enter" onkeydown="if(event.key==='Enter')addThought()">
+            <button class="btn" onclick="addThought()" style="white-space:nowrap;">Add</button>
+          </div>
+          <div class="thoughts-wrap" id="thoughtsWrap"></div>
+          <div class="counter" id="thoughtCounter">0 / 15 minimum</div>
+          <div class="nav">
+            <button class="btn btn-ghost" onclick="goTo('s-landing')">← Back</button>
+            <button class="btn" id="step1NextBtn" onclick="initStep2()" disabled>Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 2A: TAGGING ══════════════ -->
+      <div class="screen" id="s-step2-tag">
+        <div class="box">
+          <div class="step-indicator">Step 2 of 4</div>
+          <h1>Hearts &amp; Hazards</h1>
+          <p>Mark anything that feels positive with a&nbsp;:) and anything that feels negative with a&nbsp;:( &nbsp;...this will help you fill out the following Pros/Cons lists about your Current Romantic Partner. Feel free to add anything new that comes to mind.</p>
+          <div class="tag-progress" id="tagProgress">— of —</div>
+          <div class="tag-card">
+            <div class="thought-text" id="tagThoughtText"></div>
+            <div class="tag-buttons">
+              <button class="tag-btn" onclick="tagThought('positive')">:)</button>
+              <button class="tag-btn" onclick="tagThought('neutral')">:|</button>
+              <button class="tag-btn" onclick="tagThought('negative')">:(</button>
+            </div>
+          </div>
+          <div class="nav">
+            <button class="btn btn-ghost" onclick="untagThought()">← Back</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 2B: LISTS ══════════════ -->
+      <div class="screen" id="s-step2-lists">
+        <div class="box">
+          <div class="step-indicator">Step 2 of 4</div>
+          <h1>Hearts &amp; Hazards</h1>
+          <p>Here are your Pros and Cons. Feel free to edit, delete, or add new entries.</p>
+          <div class="pros-cons">
+            <div class="pros-col">
+              <div class="list-col-header">Pros :)</div>
+              <div id="prosList"></div>
+              <button class="add-entry" onclick="addListEntry('pros')">+ Add</button>
+            </div>
+            <div class="cons-col">
+              <div class="list-col-header">Cons :(</div>
+              <div id="consList"></div>
+              <button class="add-entry" onclick="addListEntry('cons')">+ Add</button>
+            </div>
+          </div>
+          <div class="nav">
+            <button class="btn btn-ghost" onclick="resetTagging()">← Retag</button>
+            <button class="btn" onclick="goTo('s-step3-brainstorm')">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 3A: BRAINSTORM ══════════════ -->
+      <div class="screen" id="s-step3-brainstorm">
+        <div class="box">
+          <div class="step-indicator">Step 3 of 4</div>
+          <h1>Romance Report Card</h1>
+          <p>List all the traits you wish for in your Ideal Partner.</p>
+          <div style="display:flex;gap:10px;margin:14px 0;">
+            <input type="text" id="traitInput" placeholder="type a trait and press enter" onkeydown="if(event.key==='Enter')addTrait()">
+            <button class="btn" onclick="addTrait()" style="white-space:nowrap;">Add</button>
+          </div>
+          <div id="traitBrainstormList"></div>
+          <div class="nav">
+            <button class="btn btn-ghost" onclick="goTo('s-step2-lists')">← Back</button>
+            <button class="btn" id="step3NextBtn" onclick="initRanking()" disabled>Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 3B: RANK + CHECK ══════════════ -->
+      <div class="screen" id="s-step3-rank">
+        <div class="box">
+          <div class="step-indicator">Step 3 of 4</div>
+          <h1>Romance Report Card</h1>
+          <p>Drag to rank your traits from most to least important. Mark the traits your Current Partner has. <span style="color:var(--green);">Your top 10 are scored</span> — the rest appear for reference only.</p>
+          <div id="traitRankList" style="margin:16px 0;"></div>
+          <div class="nav">
+            <button class="btn btn-ghost" onclick="goTo('s-step3-brainstorm')">← Back</button>
+            <button class="btn" onclick="goToScore()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 3C: SCORE ══════════════ -->
+      <div class="screen" id="s-step3-score">
+        <div class="box">
+          <div class="step-indicator">Step 3 of 4</div>
+          <h1>Romance Report Card</h1>
+          <p>This is your Current Partner's grade out of ten. <strong style="color:var(--red);">WARNING!</strong> Anything below 60% is an automatic fail.</p>
+          <div class="score-display-big" id="autoScoreDisplay">—</div>
+          <div class="score-context" id="scoreContextText"></div>
+          <div class="nav">
+            <button class="btn btn-ghost" onclick="goTo('s-step3-rank')">← Back</button>
+            <button class="btn" onclick="submitScore()">Submit Score</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ GATE: DETECTED ══════════════ -->
+      <div class="screen" id="s-gate">
+        <div class="box">
+          <div class="gate-alert">AUTOMATIC FAIL DETECTED</div>
+          <p style="text-align:center;color:#aaa;">Anything below 60% is an automatic fail.</p>
+          <hr class="divider">
+          <div class="gate-question">Was this a mistake?</div>
+          <div class="nav" style="justify-content:center;gap:16px;margin-top:16px;">
+            <button class="btn btn-ghost" onclick="gateRevise()">Yes — let me revise</button>
+            <button class="btn btn-red" onclick="goTo('s-gate-confirm')">No</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ GATE: CONFIRM ══════════════ -->
+      <div class="screen" id="s-gate-confirm">
+        <div class="box">
+          <div class="gate-alert">CONFIRMED FAIL</div>
+          <div class="nav nav-center">
+            <button class="btn" onclick="skipToResults()" style="width:260px;">Proceed to The Results</button>
+            <button class="btn-beg" onclick="goTo('s-gate-beg')">I realize I have failed, but would like to proceed to Step 4. Please.</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ GATE: BEG RESPONSE ══════════════ -->
+      <div class="screen" id="s-gate-beg">
+        <div class="box" style="text-align:center;padding:56px 44px;">
+          <p style="font-family:'Source Code Pro',monospace;font-size:0.85rem;color:#777;letter-spacing:0.08em;margin-bottom:36px;line-height:2;">The Method notes your decision.<br>You may proceed.</p>
+          <button class="btn" onclick="begContinue()">Continue to Step 4</button>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 4A: PROMINENT PATTERN ══════════════ -->
+      <div class="screen" id="s-step4-pattern">
+        <div class="box">
+          <div class="step-indicator">Step 4 of 4</div>
+          <h1>The Previous Partnership Pendulum</h1>
+          <p>When choosing a partner, people commonly swing between two extremes of personality types. A negative experience on one side of the spectrum can push them toward seeking its opposite in the future.</p>
+          <p>Take a moment to consider your past relationships and identify your <strong>Prominent Partnership Pattern</strong>: are two of your Previous Partners on opposite ends of your Romantic Spectrum? What qualities do they have that differ? Feel free to enter in your own response.</p>
+          <div class="pattern-list" id="patternList">
+            <div class="pattern-opt" onclick="selectPattern(this,'Independent','Clingy')">
+              <input type="radio" name="pat"><span class="pattern-opt-label">Independent &nbsp;/&nbsp; Clingy</span>
+            </div>
+            <div class="pattern-opt" onclick="selectPattern(this,'Romantic','Logical')">
+              <input type="radio" name="pat"><span class="pattern-opt-label">Romantic &nbsp;/&nbsp; Logical</span>
+            </div>
+            <div class="pattern-opt" onclick="selectPattern(this,'Adventurous','Homebody')">
+              <input type="radio" name="pat"><span class="pattern-opt-label">Adventurous &nbsp;/&nbsp; Homebody</span>
+            </div>
+            <div class="pattern-opt" onclick="selectPattern(this,'Introverted','Extroverted')">
+              <input type="radio" name="pat"><span class="pattern-opt-label">Introverted &nbsp;/&nbsp; Extroverted</span>
+            </div>
+            <div class="pattern-opt" onclick="selectPattern(this,'Spontaneous','Reliable')">
+              <input type="radio" name="pat"><span class="pattern-opt-label">Spontaneous &nbsp;/&nbsp; Reliable</span>
+            </div>
+            <div class="pattern-opt" onclick="selectPattern(this,'Emotionally Open','Reserved')">
+              <input type="radio" name="pat"><span class="pattern-opt-label">Emotionally Open &nbsp;/&nbsp; Reserved</span>
+            </div>
+            <div class="pattern-opt" id="customPatternOpt" onclick="selectPattern(this,'','')">
+              <input type="radio" name="pat">
+              <div class="custom-pair">
+                <input type="text" id="customLeft" placeholder="________" onclick="event.stopPropagation();selectPattern(document.getElementById('customPatternOpt'),'','')">
+                <span class="pair-slash">/</span>
+                <input type="text" id="customRight" placeholder="________" onclick="event.stopPropagation();selectPattern(document.getElementById('customPatternOpt'),'','')">
+              </div>
+            </div>
+          </div>
+          <div class="nav">
+            <button class="btn btn-ghost" id="patternBackBtn" onclick="goTo('s-step3-score')">← Back</button>
+            <button class="btn" id="patternNextBtn" onclick="initPendulum()" disabled>Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ STEP 4B: PENDULUM ══════════════ -->
+      <div class="screen" id="s-step4-pendulum">
+        <div class="box">
+          <div class="step-indicator">Step 4 of 4</div>
+          <h1>The Previous Partnership Pendulum</h1>
+
+          <!-- Pendulum animation -->
+          <div class="pendulum-scene">
+            <!-- Static pivot mount -->
+            <svg class="pendulum-pivot-svg" viewBox="0 0 300 18" width="280">
+              <rect x="108" y="4" width="84" height="10" fill="#008544" rx="0"/>
+            </svg>
+            <!-- Animated arm + ball — rotates around top center -->
+            <div style="text-align:center;overflow:visible;line-height:0;">
+              <div class="pendulum-swing" id="pendulumAnim">
+                <svg viewBox="0 0 300 240" width="280" style="display:block;overflow:visible;">
+                  <line x1="150" y1="0" x2="150" y2="212" stroke="#008544" stroke-width="3"/>
+                  <circle cx="150" cy="225" r="14" fill="#008544"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Left / Right labels -->
+            <div class="pendulum-labels" id="pendulumLabels">
+              <span id="labelLeft"></span>
+              <span id="labelRight"></span>
+            </div>
+            <!-- Partner axis: appears after all placements -->
+            <div class="partner-axis" id="partnerAxis" style="display:none;"></div>
+          </div>
+
+          <div id="placementArea"></div>
+          <div id="perceiveMsg" style="display:none;">
+            <p class="perceive-text">Perceive the Power of the Pendulum.</p>
+          </div>
+          <div class="nav">
+            <button class="btn btn-ghost" onclick="goTo('s-step4-pattern')">← Back</button>
+            <button class="btn" id="pendulumNextBtn" onclick="finishPendulum()" style="display:none;">View The Results →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ THE RESULTS ══════════════ -->
+      <div class="screen" id="s-results">
+        <div class="box">
+          <h1>Witness The Results.</h1>
+          <div id="resultsContent"></div>
+          <div class="verdict-prompt-section">
+            <p>Need a more definitive answer?</p>
+            <button class="btn" onclick="goTo('s-verdict')">See The Verdict</button>
+          </div>
+          <div class="restart-section">
+            <button class="btn btn-ghost" onclick="resetAll()" style="font-size:0.62rem;letter-spacing:0.1em;">↺ Repeat the Method</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ THE VERDICT ══════════════ -->
+      <div class="screen" id="s-verdict">
+        <div class="box">
+          <h1>The Verdict</h1>
+          <div class="determination-label">A determination has been reached.</div>
+          <div class="verdict-body" id="verdictBody"></div>
+          <div class="nav" style="justify-content:center;margin-top:28px;">
+            <button class="btn btn-ghost" onclick="goTo('s-results')">← Return to The Results</button>
+          </div>
+          <div class="restart-section">
+            <button class="btn btn-ghost" onclick="resetAll()" style="font-size:0.62rem;letter-spacing:0.1em;">↺ Repeat the Method</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /screenWrap -->
+  </div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const S = {
+  thoughts: [],
+  tagQueue: [], tagIndex: 0, tagHistory: [],
+  pros: [], cons: [],
+  idealTraits: [],
+  topTraits: [],        // [{text, hasPartner}]
+  score: null,
+  failedGate: false, begged: false,
+  patternLeft: '', patternRight: '',
+  prevPartners: [],     // [{name, pos}]
+  idealPos: 50,
+  currentPos: 50,
+  placementPhase: 'previous'
+};
+
+let dragSrcIdx = null;
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════
+// STEP 1: MIND MAP
+// ═══════════════════════════════════════════
+function renderThoughts() {
+  const wrap = document.getElementById('thoughtsWrap');
+  wrap.innerHTML = '';
+  S.thoughts.forEach((txt, i) => {
+    const b = document.createElement('div');
+    b.className = 'thought-bubble';
+    const span = document.createElement('span');
+    span.textContent = txt;
+    const del = document.createElement('button');
+    del.className = 'thought-del';
+    del.textContent = '×';
+    del.title = 'Remove';
+    del.onclick = () => removeThought(i);
+    b.appendChild(span);
+    b.appendChild(del);
+    wrap.appendChild(b);
+  });
+  const n = S.thoughts.length;
+  const ctr = document.getElementById('thoughtCounter');
+  ctr.textContent = n + ' / 15 minimum';
+  if (n >= 15) {
+    ctr.classList.add('ready');
+    document.getElementById('step1NextBtn').disabled = false;
+  } else {
+    ctr.classList.remove('ready');
+    document.getElementById('step1NextBtn').disabled = true;
+  }
+}
+
+function addThought() {
+  const inp = document.getElementById('thoughtInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  S.thoughts.push(txt);
+  inp.value = '';
+  inp.focus();
+  renderThoughts();
+}
+
+function removeThought(i) {
+  S.thoughts.splice(i, 1);
+  renderThoughts();
+}
+
+// ═══════════════════════════════════════════
+// STEP 2A: TAGGING
+// ═══════════════════════════════════════════
+function initStep2() {
+  if (S.thoughts.length < 15) return;
+  S.tagQueue = [...S.thoughts];
+  S.tagIndex = 0;
+  S.tagHistory = [];
+  S.pros = []; S.cons = [];
+  showTag();
+  goTo('s-step2-tag');
+}
+
+function resetTagging() {
+  S.tagIndex = 0;
+  S.tagHistory = [];
+  S.pros = []; S.cons = [];
+  showTag();
+  goTo('s-step2-tag');
+}
+
+function showTag() {
+  if (S.tagIndex >= S.tagQueue.length) {
+    renderLists();
+    goTo('s-step2-lists');
+    return;
+  }
+  document.getElementById('tagThoughtText').textContent = '"' + S.tagQueue[S.tagIndex] + '"';
+  document.getElementById('tagProgress').textContent =
+    (S.tagIndex + 1) + ' of ' + S.tagQueue.length;
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
+}
+
+function tagThought(sentiment) {
+  const t = S.tagQueue[S.tagIndex];
+  if (sentiment === 'positive') S.pros.push(t);
+  else if (sentiment === 'negative') S.cons.push(t);
+  S.tagHistory.push({ thought: t, sentiment });
+  S.tagIndex++;
+  showTag();
+}
+
+function untagThought() {
+  if (S.tagIndex === 0) {
+    goTo('s-step1');
+    return;
+  }
+  const last = S.tagHistory.pop();
+  if (last.sentiment === 'positive') S.pros.pop();
+  else if (last.sentiment === 'negative') S.cons.pop();
+  S.tagIndex--;
+  showTag();
+}
+
+// ═══════════════════════════════════════════
+// STEP 2B: LISTS
+// ═══════════════════════════════════════════
+function renderLists() {
+  renderList('prosList', S.pros, 'pros');
+  renderList('consList', S.cons, 'cons');
+}
+
+function renderList(containerId, arr, type) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  arr.forEach((item, i) => c.appendChild(makeListRow(item, i, type)));
+}
+
+function makeListRow(text, idx, type) {
+  const row = document.createElement('div');
+  row.className = 'list-item-row';
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.value = text;
+  inp.onchange = () => { (type === 'pros' ? S.pros : S.cons)[idx] = inp.value; };
+  const del = document.createElement('button');
+  del.className = 'del-btn';
+  del.textContent = '×';
+  del.onclick = () => {
+    (type === 'pros' ? S.pros : S.cons).splice(idx, 1);
+    renderList(type === 'pros' ? 'prosList' : 'consList',
+               type === 'pros' ? S.pros : S.cons, type);
+  };
+  row.appendChild(inp);
+  row.appendChild(del);
+  return row;
+}
+
+function addListEntry(type) {
+  (type === 'pros' ? S.pros : S.cons).push('');
+  renderList(type === 'pros' ? 'prosList' : 'consList',
+             type === 'pros' ? S.pros : S.cons, type);
+}
+
+// ═══════════════════════════════════════════
+// STEP 3A: BRAINSTORM
+// ═══════════════════════════════════════════
+function renderTraitBrainstorm() {
+  const list = document.getElementById('traitBrainstormList');
+  list.innerHTML = '';
+  S.idealTraits.forEach((txt, i) => {
+    const item = document.createElement('div');
+    item.className = 'trait-brainstorm-item';
+    const span = document.createElement('span');
+    span.textContent = txt;
+    const del = document.createElement('button');
+    del.className = 'trait-del';
+    del.textContent = '×';
+    del.title = 'Remove';
+    del.onclick = () => removeTrait(i);
+    item.appendChild(span);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+  document.getElementById('step3NextBtn').disabled = S.idealTraits.length === 0;
+}
+
+function addTrait() {
+  const inp = document.getElementById('traitInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  S.idealTraits.push(txt);
+  inp.value = '';
+  inp.focus();
+  renderTraitBrainstorm();
+}
+
+function removeTrait(i) {
+  S.idealTraits.splice(i, 1);
+  renderTraitBrainstorm();
+}
+
+// ═══════════════════════════════════════════
+// STEP 3B: RANK + CHECK (DRAGGABLE)
+// ═══════════════════════════════════════════
+function initRanking() {
+  // Preserve existing hasPartner state when re-entering
+  const prevMap = {};
+  S.topTraits.forEach(t => { prevMap[t.text] = t.hasPartner; });
+  S.topTraits = S.idealTraits.map(t => ({ text: t, hasPartner: prevMap[t] || false }));
+  renderRankList();
+  goTo('s-step3-rank');
+}
+
+function renderRankList() {
+  const c = document.getElementById('traitRankList');
+  c.innerHTML = '';
+  const topN = Math.min(S.topTraits.length, 10);
+
+  S.topTraits.forEach((trait, i) => {
+    // Insert divider before "beyond top 10" items
+    if (i === topN && S.topTraits.length > topN) {
+      const div = document.createElement('div');
+      div.className = 'rank-divider';
+      div.textContent = '— beyond top 10 (reference only) —';
+      c.appendChild(div);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'trait-rank-item' + (i >= topN ? ' rank-beyond' : '');
+    row.draggable = true;
+    row.dataset.i = i;
+
+    const cid = 'chk-' + i;
+    row.innerHTML =
+      '<span class="drag-handle">⣿</span>' +
+      '<span class="rank-num">' + (i < topN ? (i + 1) + '.' : '·') + '</span>' +
+      '<span class="rank-text">' + trait.text + '</span>' +
+      '<div class="partner-check">' +
+        '<input type="checkbox" id="' + cid + '"' + (trait.hasPartner ? ' checked' : '') + '>' +
+        '<label for="' + cid + '">Partner has</label>' +
+      '</div>';
+
+    // Checkbox change
+    const cb = row.querySelector('input[type="checkbox"]');
+    cb.addEventListener('change', () => { S.topTraits[i].hasPartner = cb.checked; });
+
+    // Drag events
+    row.addEventListener('dragstart', e => {
+      dragSrcIdx = parseInt(row.dataset.i);
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      document.querySelectorAll('.trait-rank-item').forEach(r => r.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.trait-rank-item').forEach(r => r.classList.remove('drag-over'));
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      const destIdx = parseInt(row.dataset.i);
+      if (dragSrcIdx !== null && dragSrcIdx !== destIdx) {
+        const moved = S.topTraits.splice(dragSrcIdx, 1)[0];
+        S.topTraits.splice(destIdx, 0, moved);
+        renderRankList();
+      }
+      dragSrcIdx = null;
+    });
+
+    c.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════════════
+// STEP 3C: SCORE (AUTO-CALCULATED)
+// ═══════════════════════════════════════════
+function goToScore() {
+  const topN = Math.min(S.topTraits.length, 10);
+  const checked = S.topTraits.slice(0, topN).filter(t => t.hasPartner).length;
+  // Normalize to 0–10 scale
+  S.score = topN > 0 ? parseFloat((checked / topN * 10).toFixed(1)) : 0;
+
+  const big = document.getElementById('autoScoreDisplay');
+  big.textContent = S.score.toFixed(1) + ' / 10';
+  big.style.color = S.score < 6 ? 'var(--red)' : 'var(--green)';
+
+  document.getElementById('scoreContextText').textContent =
+    checked + ' of ' + topN + ' traits matched';
+
+  goTo('s-step3-score');
+}
+
+function submitScore() {
+  if (S.score < 6) goTo('s-gate');
+  else goTo('s-step4-pattern');
+}
+
+// ═══════════════════════════════════════════
+// GATE
+// ═══════════════════════════════════════════
+function gateRevise() {
+  // Return to rank/checkbox screen with state preserved
+  renderRankList();
+  goTo('s-step3-rank');
+}
+
+function skipToResults() {
+  S.failedGate = true;
+  renderResults();
+  goTo('s-results');
+}
+
+function begContinue() {
+  S.begged = true;
+  document.getElementById('patternBackBtn').onclick = () => goTo('s-gate-beg');
+  goTo('s-step4-pattern');
+}
+
+// ═══════════════════════════════════════════
+// STEP 4A: PATTERN
+// ═══════════════════════════════════════════
+function selectPattern(el, left, right) {
+  document.querySelectorAll('.pattern-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input[type="radio"]').checked = true;
+
+  if (left === '' && right === '') {
+    S.patternLeft  = document.getElementById('customLeft').value.trim()  || '—';
+    S.patternRight = document.getElementById('customRight').value.trim() || '—';
+  } else {
+    S.patternLeft = left;
+    S.patternRight = right;
+  }
+  document.getElementById('patternNextBtn').disabled = false;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  ['customLeft', 'customRight'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      S.patternLeft  = document.getElementById('customLeft').value.trim()  || '—';
+      S.patternRight = document.getElementById('customRight').value.trim() || '—';
+    });
+  });
+  initGrid();
+  loadBgElements();
+});
+
+// ═══════════════════════════════════════════
+// STEP 4B: PENDULUM PLACEMENT
+// ═══════════════════════════════════════════
+function initPendulum() {
+  S.prevPartners = [];
+  S.placementPhase = 'previous';
+  S.idealPos = 50;
+  S.currentPos = 50;
+  document.getElementById('labelLeft').textContent  = S.patternLeft;
+  document.getElementById('labelRight').textContent = S.patternRight;
+  document.getElementById('partnerAxis').style.display = 'none';
+  document.getElementById('partnerAxis').innerHTML = '';
+  document.getElementById('perceiveMsg').style.display = 'none';
+  document.getElementById('pendulumNextBtn').style.display = 'none';
+  renderPlacementPhase();
+  goTo('s-step4-pendulum');
+}
+
+function renderPlacementPhase() {
+  const area  = document.getElementById('placementArea');
+  const left  = S.patternLeft;
+  const right = S.patternRight;
+
+  if (S.placementPhase === 'previous') {
+    area.innerHTML =
+      '<div class="placement-phase">' +
+        '<p>Use the slider below to place your Previous Partners along The Pendulum.</p>' +
+        '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
+        '<input type="range" id="prevSlider" min="0" max="100" value="50">' +
+        '<div class="prev-partner-row" style="margin-top:12px;">' +
+          '<input type="text" id="prevName" placeholder="Previous Partner name" onkeydown="if(event.key===\'Enter\')addPrevPartner()">' +
+          '<button class="btn" onclick="addPrevPartner()">Add</button>' +
+        '</div>' +
+        '<div id="placedList"></div>' +
+        '<div style="margin-top:14px;">' +
+          '<button class="btn" id="prevPhaseNextBtn" onclick="nextPhase()" ' + (S.prevPartners.length > 0 ? '' : 'disabled') + '>Next →</button>' +
+        '</div>' +
+      '</div>';
+    renderPlacedPartners();
+
+  } else if (S.placementPhase === 'ideal') {
+    area.innerHTML =
+      '<div class="placement-phase">' +
+        '<p>Use the slider below to place your Ideal Partner along The Pendulum.</p>' +
+        '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
+        '<input type="range" id="idealSlider" min="0" max="100" value="50">' +
+        '<div style="margin-top:14px;">' +
+          '<button class="btn" onclick="nextPhase()">Next →</button>' +
+        '</div>' +
+      '</div>';
+
+  } else if (S.placementPhase === 'current') {
+    area.innerHTML =
+      '<div class="placement-phase">' +
+        '<p>Use the slider below to place your Current Partner along The Pendulum.</p>' +
+        '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
+        '<input type="range" id="currentSlider" min="0" max="100" value="50">' +
+        '<div style="margin-top:14px;">' +
+          '<button class="btn" onclick="nextPhase()">Done</button>' +
+        '</div>' +
+      '</div>';
+  }
+}
+
+function addPrevPartner() {
+  const nameInp = document.getElementById('prevName');
+  const slider  = document.getElementById('prevSlider');
+  const name = nameInp.value.trim();
+  if (!name) return;
+
+  S.prevPartners.push({ name, pos: parseInt(slider.value) });
+  nameInp.value = '';
+  nameInp.focus();
+  renderPlacedPartners();
+  document.getElementById('prevPhaseNextBtn').disabled = false;
+}
+
+function removePrevPartner(idx) {
+  S.prevPartners.splice(idx, 1);
+  renderPlacedPartners();
+  if (S.prevPartners.length === 0) {
+    const btn = document.getElementById('prevPhaseNextBtn');
+    if (btn) btn.disabled = true;
+  }
+}
+
+function renderPlacedPartners() {
+  const placed = document.getElementById('placedList');
+  if (!placed) return;
+  placed.innerHTML = '';
+  S.prevPartners.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'placed-partner';
+    d.innerHTML =
+      '<span class="placed-partner-name">' + p.name + '</span>' +
+      '<button class="del-partner-btn" onclick="removePrevPartner(' + i + ')">×</button>';
+    placed.appendChild(d);
+  });
+}
+
+function nextPhase() {
+  if (S.placementPhase === 'previous') {
+    S.placementPhase = 'ideal';
+  } else if (S.placementPhase === 'ideal') {
+    const sl = document.getElementById('idealSlider');
+    S.idealPos = sl ? parseInt(sl.value) : 50;
+    S.placementPhase = 'current';
+  } else if (S.placementPhase === 'current') {
+    const sl = document.getElementById('currentSlider');
+    S.currentPos = sl ? parseInt(sl.value) : 50;
+    // All placed — render axis, show perceive + next button
+    document.getElementById('placementArea').innerHTML = '';
+    renderPartnerAxis();
+    document.getElementById('partnerAxis').style.display = 'block';
+    document.getElementById('perceiveMsg').style.display = 'block';
+    document.getElementById('pendulumNextBtn').style.display = 'inline-block';
+    return;
+  }
+  renderPlacementPhase();
+}
+
+function renderPartnerAxis() {
+  const axis = document.getElementById('partnerAxis');
+  axis.innerHTML = '';
+
+  const points = [
+    ...S.prevPartners.map(p => ({ name: p.name, pos: p.pos, color: 'var(--gray)' })),
+    { name: 'Ideal', pos: S.idealPos, color: 'var(--white)' },
+    { name: 'Current', pos: S.currentPos, color: 'var(--green)' }
+  ];
+
+  // Sort by position for overlap detection
+  points.sort((a, b) => a.pos - b.pos);
+
+  // Assign vertical rows to avoid label overlap (group within 8% of each other)
+  const THRESHOLD = 8;
+  let currentRow = 0;
+  let lastPos = -99;
+  points.forEach(p => {
+    if (p.pos - lastPos < THRESHOLD) {
+      currentRow++;
+    } else {
+      currentRow = 0;
+    }
+    p.row = currentRow;
+    lastPos = p.pos;
+  });
+
+  const ROW_H = 14; // px per row
+  points.forEach(p => {
+    // Tick mark — absolutely positioned at correct %, centered
+    const tick = document.createElement('div');
+    tick.className = 'axis-tick';
+    tick.style.left = p.pos + '%';
+    tick.style.backgroundColor = p.color;
+    axis.appendChild(tick);
+
+    // Label — absolutely positioned, centered under tick, offset by row
+    const lbl = document.createElement('div');
+    lbl.className = 'axis-name';
+    lbl.textContent = p.name;
+    lbl.style.left = p.pos + '%';
+    lbl.style.top = (8 + p.row * ROW_H) + 'px';
+    lbl.style.color = p.color;
+    axis.appendChild(lbl);
+  });
+
+  // Expand axis height if needed
+  const maxRow = Math.max(...points.map(p => p.row));
+  axis.style.minHeight = (8 + (maxRow + 1) * ROW_H + 6) + 'px';
+}
+
+function finishPendulum() {
+  renderResults();
+  goTo('s-results');
+}
+
+// ═══════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════
+function posLabel(pos, left, right) {
+  if (pos <= 15)  return 'strongly ' + left;
+  if (pos <= 35)  return 'leaning ' + left;
+  if (pos <= 65)  return 'balanced';
+  if (pos <= 85)  return 'leaning ' + right;
+  return 'strongly ' + right;
+}
+
+function renderResults() {
+  const topN      = Math.min(S.topTraits.length, 10);
+  const matchCount = S.topTraits.slice(0, topN).filter(t => t.hasPartner).length;
+  const total      = topN;
+
+  let step4html = '';
+  if (!S.failedGate) {
+    const prevRows = S.prevPartners.map(p =>
+      '<p>— ' + p.name + ': <span style="color:#777;">' +
+      posLabel(p.pos, S.patternLeft, S.patternRight) + '</span></p>'
+    ).join('');
+    step4html =
+      '<div class="results-block">' +
+        '<div class="results-block-title">The Previous Partnership Pendulum</div>' +
+        '<p style="margin-bottom:10px;">Prominent Partnership Pattern: <span style="font-family:\'Source Code Pro\',monospace;color:var(--green);">' + S.patternLeft + ' / ' + S.patternRight + '</span></p>' +
+        prevRows +
+        '<p>— Ideal Partner: <span style="color:#777;">' + posLabel(S.idealPos, S.patternLeft, S.patternRight) + '</span></p>' +
+        '<p>— Current Partner: <span style="color:var(--green);">' + posLabel(S.currentPos, S.patternLeft, S.patternRight) + '</span></p>' +
+      '</div>';
+  }
+
+  const bubbles = S.thoughts.map(t =>
+    '<span class="results-bubble">' + t + '</span>'
+  ).join('');
+
+  const prosHtml = S.pros.length
+    ? S.pros.map(p => '<p>— ' + p + '</p>').join('')
+    : '<p style="color:#444;">None recorded.</p>';
+  const consHtml = S.cons.length
+    ? S.cons.map(c => '<p>— ' + c + '</p>').join('')
+    : '<p style="color:#444;">None recorded.</p>';
+
+  const traitsHtml = S.topTraits.slice(0, topN).map((t, i) =>
+    '<div class="results-trait-row ' + (t.hasPartner ? 'has-trait' : 'no-trait') + '">' +
+      '<span>' + (i + 1) + '. ' + t.text + '</span>' +
+      (t.hasPartner ? '<span class="has-mark">✓</span>' : '') +
+    '</div>'
+  ).join('');
+
+  const failBadge = S.score < 6
+    ? ' <span style="font-family:\'Source Code Pro\',monospace;font-size:0.62rem;color:var(--red);letter-spacing:0.05em;">(Automatic Fail)</span>'
+    : '';
+
+  document.getElementById('resultsContent').innerHTML =
+    '<div class="results-block">' +
+      '<div class="results-block-title">Miss Match\'s Mind Map</div>' +
+      '<p>' + S.thoughts.length + ' thoughts recorded.</p>' +
+      '<div class="results-bubbles">' + bubbles + '</div>' +
+    '</div>' +
+
+    '<div class="results-block">' +
+      '<div class="results-block-title">Hearts &amp; Hazards</div>' +
+      '<div class="results-two-col">' +
+        '<div>' +
+          '<div class="results-col-head">Pros :) (' + S.pros.length + ')</div>' + prosHtml +
+        '</div>' +
+        '<div>' +
+          '<div class="results-col-head">Cons :( (' + S.cons.length + ')</div>' + consHtml +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="results-block">' +
+      '<div class="results-block-title">Romance Report Card</div>' +
+      '<p style="margin-bottom:12px;">Score: <span style="font-family:\'Source Code Pro\',monospace;font-size:1.1rem;color:' + (S.score < 6 ? 'var(--red)' : 'var(--green)') + ';">' +
+        S.score.toFixed(1) + '/10' + failBadge + '</span></p>' +
+      '<p style="font-size:0.72rem;color:#555;font-family:\'Source Code Pro\',monospace;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Current Partner has ' + matchCount + ' of ' + total + ' evaluated traits.</p>' +
+      traitsHtml +
+    '</div>' +
+
+    step4html;
+
+  generateVerdict(matchCount, total);
+}
+
+// ═══════════════════════════════════════════
+// VERDICT
+// ═══════════════════════════════════════════
+function generateVerdict(matchCount, total) {
+  const score    = S.score || 0;
+  const pros     = S.pros.length;
+  const cons     = S.cons.length;
+  const traitPct = total > 0 ? matchCount / total : 0;
+
+  const hardFail  = score < 6;
+  const heavyCons = cons > pros * 1.5;
+  const heavyPros = pros > cons * 1.5;
+  const lowMatch  = traitPct < 0.4;
+  const highMatch = traitPct >= 0.7;
+  const highScore = score >= 8;
+  const midScore  = score >= 6 && score < 8;
+
+  // Step 4 proximity factor (if completed)
+  const pendulumDelta = Math.abs(S.currentPos - S.idealPos);
+  const pendulumClose = pendulumDelta <= 20;
+
+  let text = '';
+
+  if (hardFail || (heavyCons && lowMatch)) {
+    text = 'The data is not ambiguous. Your Current Partner scored below the threshold. Your Cons outweigh your Pros. They possess fewer than half the traits you have identified as essential. The Method suggests you already know what to do.';
+  } else if (highScore && highMatch && heavyPros && (S.failedGate || pendulumClose)) {
+    text = 'The data presents a favorable picture. Your Current Partner scores well, meets most of your key criteria, and your Pros outweigh your Cons. The Method suggests the turmoil may be situational rather than fundamental. Proceed with consideration.';
+  } else if (midScore && !heavyCons && !lowMatch) {
+    text = 'The data is promising but inconclusive. Your Current Partner meets many of your criteria. The Method notes, however, that adequate is not the same as right. Sit with The Results.';
+  } else if (heavyCons || lowMatch) {
+    text = 'The data presents cause for concern. A significant number of your Cons and an absence of key traits suggest a meaningful incompatibility. The Method does not make decisions. But it has shown you the numbers.';
+  } else {
+    text = 'The data presents a mixed picture. The Method has noted the contradictions in your responses. Sit with The Results. The answer is already in you.';
+  }
+
+  document.getElementById('verdictBody').textContent = text;
+}
+
+// ═══════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════
+function resetAll() {
+  // Reset state
+  S.thoughts = [];
+  S.tagQueue = []; S.tagIndex = 0; S.tagHistory = [];
+  S.pros = []; S.cons = [];
+  S.idealTraits = [];
+  S.topTraits = [];
+  S.score = null;
+  S.failedGate = false; S.begged = false;
+  S.patternLeft = ''; S.patternRight = '';
+  S.prevPartners = [];
+  S.idealPos = 50; S.currentPos = 50;
+  S.placementPhase = 'previous';
+
+  // Reset visible DOM
+  document.getElementById('thoughtsWrap').innerHTML = '';
+  document.getElementById('thoughtCounter').textContent = '0 / 15 minimum';
+  document.getElementById('thoughtCounter').classList.remove('ready');
+  document.getElementById('step1NextBtn').disabled = true;
+  document.getElementById('thoughtInput').value = '';
+  document.getElementById('traitBrainstormList').innerHTML = '';
+  document.getElementById('traitInput').value = '';
+  document.getElementById('step3NextBtn').disabled = true;
+  document.getElementById('autoScoreDisplay').textContent = '—';
+  document.getElementById('scoreContextText').textContent = '';
+  document.getElementById('patternBackBtn').onclick = () => goTo('s-step3-score');
+
+  // Deselect pattern
+  document.querySelectorAll('.pattern-opt').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('.pattern-opt input[type="radio"]').forEach(r => r.checked = false);
+  document.getElementById('patternNextBtn').disabled = true;
+
+  goTo('s-landing');
+}
+
+// ═══════════════════════════════════════════
+// GRID MODE SWITCHER
+// ═══════════════════════════════════════════
+// Change this one value to switch backgrounds:
+//   'warp'     → Julia's hand-crafted warped SVG grid (original)
+//   'infinite' → Infinite perspective scrolling grid
+const GRID_MODE = 'infinite';
+
+function initGrid() {
+  if (GRID_MODE === 'warp') createWarpGrid();
+  else createInfiniteGrid();
+}
+
+// ═══════════════════════════════════════════
+// INFINITE PERSPECTIVE GRID
+// ═══════════════════════════════════════════
+function createInfiniteGrid() {
+  const container = document.getElementById('bgGrid');
+  container.innerHTML = '';
+  const canvas = document.createElement('canvas');
+  container.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── Parameters ─────────────────────────────────────────────────────────
+  const Z_NEAR      = 1;     // near plane — line at screen edge
+  const Z_FAR       = 9;     // far plane  — 8 intervals = 9 lines
+  const GRID_Z      = 1.0;   // world-unit spacing between grid rows
+  // Exponential projection: α = e^(-K*(z-Z_NEAR))
+  // Gives even screen distribution (avoids brutal 1/z compression near VP).
+  // K chosen so α=0.25 at z=Z_FAR (farthest line at 25% of half-height).
+  const K_EXP       = Math.log(4) / (Z_FAR - Z_NEAR);
+  const COLS        = 8;     // vertical columns (0 … COLS inclusive = 9 lines)
+  const SPEED       = 1.1;   // z-units per second
+  const MAX_OPACITY = 0.33;
+
+  let totalScroll = 0, lastTs = null;
+
+  function draw(ts) {
+    if (lastTs !== null) totalScroll += (ts - lastTs) / 1000 * SPEED;
+    lastTs = ts;
+
+    const W  = canvas.width;
+    const H  = canvas.height;
+    const cx = W / 2;
+    const cy = H / 2;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineWidth = 1.4;
+
+    // ── Vertical lines: fixed, radiating from vanishing point ─────────────
+    // column c is at edgeX = c/COLS * W at the screen edge
+    ctx.strokeStyle = `rgba(180,180,180,${(MAX_OPACITY * 0.80).toFixed(3)})`;
+    for (let c = 0; c <= COLS; c++) {
+      const edgeX = (c / COLS) * W;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(edgeX, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(edgeX, H); ctx.stroke();
+    }
+
+    // ── Horizontal scrolling lines ─────────────────────────────────────────
+    // Viewer has scrolled totalScroll forward in z.
+    // A world grid line at z_world = j * GRID_Z is at relative depth:
+    //   relZ = j * GRID_Z - totalScroll
+    // We draw lines whose relZ falls inside [Z_NEAR, Z_FAR].
+    const jMin = Math.ceil((totalScroll + Z_NEAR) / GRID_Z);
+    const jMax = Math.floor((totalScroll + Z_FAR)  / GRID_Z);
+
+    for (let j = jMin; j <= jMax; j++) {
+      const z = j * GRID_Z - totalScroll;
+      if (z < Z_NEAR || z > Z_FAR) continue;
+
+      // α: 1 at screen edge (z=Z_NEAR), decays to ~0.25 at z=Z_FAR
+      // Exponential gives even screen distribution instead of extreme 1/z compression
+      const α = Math.exp(-K_EXP * (z - Z_NEAR));
+
+      // y: symmetric above and below centre
+      const dy   = α * cy;
+      const yTop = cy - dy;
+      const yBot = cy + dy;
+
+      // x extents: follow the leftmost (c=0) and rightmost (c=COLS) vertical lines
+      // At parameter α along left  line: x = cx + α*(0 − cx)   = cx*(1−α)
+      // At parameter α along right line: x = cx + α*(W − cx)
+      const xL = cx * (1 - α);
+      const xR = cx + α * (W - cx);
+
+      // Fade: far lines (near VP) = 30% of max; near lines (at edge) = full max
+      const drawA = (MAX_OPACITY * (0.30 + 0.70 * α)).toFixed(3);
+      ctx.strokeStyle = `rgba(180,180,180,${drawA})`;
+
+      ctx.beginPath(); ctx.moveTo(xL, yTop); ctx.lineTo(xR, yTop); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xL, yBot); ctx.lineTo(xR, yBot); ctx.stroke();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+// ═══════════════════════════════════════════
+// ORIGINAL WARPED GRID
+// ═══════════════════════════════════════════
+function createWarpGrid() {
+  const container = document.getElementById('bgGrid');
+  container.innerHTML = '';
+  const ns  = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  svg.setAttribute('viewBox', '0 0 1005.36 769.53');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+  container.appendChild(svg);
+
+  // ── Filter: fractalNoise (1 octave) → gentle structural displacement ──
+  // fractalNoise + numOctaves=1 = single smooth wave, no high-freq ripple.
+  // Very low baseFrequency = large, slow bends (not water).
+  // Low scale = subtle deformation so curves stay recognizable.
+  const defs = document.createElementNS(ns, 'defs');
+  defs.innerHTML = `
+    <filter id="warpFilter" x="-30%" y="-30%" width="160%" height="160%"
+            color-interpolation-filters="linearRGB">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.0015 0.0018"
+        numOctaves="1"
+        seed="7"
+        result="noise">
+        <animate attributeName="baseFrequency"
+          values="0.0012 0.0015; 0.0022 0.0018; 0.0014 0.0025; 0.0018 0.0012; 0.0012 0.0015"
+          dur="55s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise"
+        xChannelSelector="R" yChannelSelector="G">
+        <animate attributeName="scale"
+          values="12; 22; 10; 18; 12"
+          dur="70s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1"/>
+      </feDisplacementMap>
+    </filter>
+  `;
+  svg.appendChild(defs);
+
+  // ── Julia's hand-crafted warped grid paths ────────────────────────────
+  // Outer border + ~12 horizontal sweeping curves + ~12 vertical/radial curves
+  // All paths from background-element_warped-grid.svg (viewBox 0 0 1005.36 769.53)
+  const paths = [
+    // Outer closed border
+    "M.09,141.62c136.12,30.31,273.04,57.13,410.3,81.73,85.09,15.25,176.22,46.87,263.53,37.18,131.21-14.57,116.46-162.29,99.26-259.81,63.83,35.77,90.9,119.1,110.53,185.38,14.95,50.49,27.17,102.94,29.31,155.7,1.34,32.86,12.29,61.66,24.76,91.93,24.88,60.43,48.7,120.61,67.12,183.42-145.74,38.53-300.11-.24-445.56,39.34-131.99,35.92-263.2,75.02-394.73,112.57-32.51-117.15-46.09-236.93-58.11-357.53-5.33-53.5-9.79-107.97-22.96-160.24C71.95,205.3,50.79,154.45.09,141.62Z",
+    // Horizontal sweeping curves (top to bottom)
+    "M35.84,159.75c128.21,45.66,264.49,82.78,398.7,105.01,85.15,14.1,179.52,37.44,265.94,23.34,37.38-6.1,72.21-22.28,94.13-54.22,38.23-55.69,29.7-133.54,21.27-196.29",
+    "M61.64,192c49.38,11.82,97.47,35.97,145.58,52.23,78.42,26.5,158.85,50.04,240.65,63.43,86.15,14.1,180.41,33.61,267.66,19.78,38.19-6.05,75.3-20.71,100.61-51.04,40.96-49.09,39.97-118.72,34.95-178.75",
+    "M79.67,236.93c18.44,1.31,37.53,12.02,54.29,18.97,31.03,12.87,62,25.88,93.39,37.87,73.68,28.14,149.28,51.12,227.36,63.16,86.85,13.39,177.92,30.85,265.92,19.1,39.21-5.24,79.5-17.85,108.7-45.76,43.81-41.87,50.54-103.31,49.28-160.78",
+    "M92.07,293.09c19.37-.66,40.13,11.47,57.21,19.14,29.92,13.44,59.51,27.6,89.65,40.55,70.72,30.38,143.26,54.06,219.69,64.57,87.95,12.09,179.05,26.05,267.68,12.69,39.9-6.01,80.19-18.52,111.77-44.52,43.91-36.15,57.49-89.18,60.15-143.82",
+    "M100.83,357.47c22.47-.9,45.96,13.56,65.27,23.32,27.99,14.15,55.47,29.29,83.58,43.2,67.58,33.46,139.13,62.19,214.75,69.85,84.99,8.61,174.66,11.99,258.74-5.22,42.27-8.65,84.65-23.43,118.73-50.66,42.67-34.08,61.6-81.98,67.87-135.01",
+    "M106.52,411.71c23.17-2.99,47.1,9.52,67.25,19.34,30.79,15.02,60.45,32.3,90.92,47.96,64.66,33.22,133.87,61.95,207.34,65.85,158.44,8.4,405.42-10.64,441-203.06",
+    "M111.86,465.39c55.66-6.16,117.71,33.24,167.1,53.8,63.23,26.32,133.59,53.28,203.18,52.9,76.99-.43,159.69-12.23,233.86-32.31,91.11-24.66,172.69-73.18,200-168.57",
+    "M118.02,522.03c57.27-10.63,119.43,13.19,174.11,27.53,65.01,17.05,134.14,34.38,201.9,29.92,75.69-4.98,154.41-15.29,228.08-33.32,84.68-20.73,166.75-58.19,203.98-141.93",
+    "M125.68,581.17c59.35-16.33,123.31-8.01,183.68-3.02,65.99,5.46,132.45,9.98,198.41,1.69,73.52-9.23,147.84-14.82,220.83-27.84,80.21-14.31,164.07-39.17,213.07-108.91",
+    "M135.54,642.36c62.95-21.23,129.89-26.59,195.65-32.41,64.71-5.73,128.23-13.7,192.14-25.25,69.58-12.58,141.08-13.27,211.31-20.37,79.14-8,164.31-20.46,226.45-74.28",
+    "M148.28,705.14c66.84-22.79,135.53-38.67,204.41-53.89,62.91-13.91,125.09-30.59,187.81-45.05,144.63-33.36,305.21,9.05,442.21-58.88",
+    // Vertical / radial curves (left to right)
+    "M12.21,144.29c103.1,32.76,108.59,183.49,124.88,271.28,21.25,114.52,47.88,226.5,83.89,337.4",
+    "M45.93,151.6c102.99,48.54,107.21,183.53,130.62,280.69,25.14,104.34,64.68,203.74,100.82,304.6",
+    "M97.58,162.56c100.23,61.58,98.74,192.81,126.35,294.86,24.85,91.86,76.09,174.7,109.82,263.39",
+    "M163.51,176.19c94.52,75.02,84.24,202.83,114.54,308.98,9.09,31.84,23.69,59.78,42.29,86.96,28.79,42.07,51.24,84.94,69.81,132.6",
+    "M240.06,191.52c86.4,86.9,67,212.04,98.11,321.48,7.78,27.38,21.36,47.55,41.81,66.73,32.68,30.65,50.59,67.21,66.56,108.92",
+    "M323.57,207.56c76.19,94.61,49.69,216.39,79.56,326.68,6.61,24.41,16.06,37.58,38.1,48.43,35.99,17.72,48.75,53.73,61.7,89.9",
+    "M410.39,223.34c65.49,96.54,35.48,213.66,61.63,321.52,5.35,22.08,10.04,33.39,32.58,35.05,36.46,2.68,45.65,47.62,54.73,76.58",
+    "M498.11,240.72c63.72,87.71,33.2,202.29,48.17,302.82,3.25,21.82,6.06,25.68,25.19,28.13,31.75,4.07,39.61,47.85,47.08,72.81",
+    "M583.07,256.4c64.76,75.9,37.35,191.88,42.83,283.25,1.01,16.87,1.72,18.78,15.39,23.92,28.42,10.68,33.91,49.25,40.9,75.29",
+    "M659.76,261.56c36.9,34.34,43.89,84.12,46.77,132.4,2.62,43.91,1.92,87.85-1.31,131.63-1.16,15.69-1.32,18.14,8.71,27.93,22.22,21.7,27.71,54.28,34.59,83.57",
+    "M722.64,247.39c41.77,29.66,50.97,83.17,56.1,131.17,4.31,40.31,7.17,83.59.25,123.73-2.62,15.21-3.1,22.45,4.13,35.91,16.81,31.27,25.22,63.58,32.6,98.38",
+    "M766.19,205.07c48.66,27.47,62.56,90.54,70.73,141.78,6.06,38.02,11.84,80.59,5.05,118.93-3.31,18.66-3.28,30.24,3.68,48.2,15.41,39.78,27.55,78.92,36.4,120.81",
+    "M784.88,125.78c55.18,28.57,75.28,99.73,88.51,156.03,9.82,41.8,19.38,88.2,14.91,131.34-2.62,25.28,2.08,45.03,10.94,68.85,18.07,48.55,34.4,96.67,46.46,147.17",
+  ];
+
+  const g = document.createElementNS(ns, 'g');
+  g.setAttribute('filter',       'url(#warpFilter)');
+  g.setAttribute('stroke',       '#ffffff');
+  g.setAttribute('stroke-width', '0.75');
+  g.setAttribute('opacity',      '0.20');
+  g.setAttribute('fill',         'none');
+  g.setAttribute('stroke-miterlimit', '10');
+
+  paths.forEach(d => {
+    const p = document.createElementNS(ns, 'path');
+    p.setAttribute('d', d);
+    g.appendChild(p);
+  });
+
+  svg.appendChild(g);
+}
+
+// ═══════════════════════════════════════════
+// BACKGROUND ELEMENTS — DVD SCREENSAVER
+// ═══════════════════════════════════════════
+const dvdItems = [];
+
+function loadBgElements() {
+  const container = document.getElementById('bgElements');
+  const BASE = 'Background Elements/';
+
+  // [src, width-px, opacity]
+  const specs = [
+    [BASE+'background-element-1.svg',   175, 0.28],
+    [BASE+'background-element-1.svg',   105, 0.16],
+    [BASE+'background-element-1.svg',   78,  0.11],
+    [BASE+'background-element-3.svg',   155, 0.26],
+    [BASE+'background-element-3.svg',   98,  0.18],
+    [BASE+'background-element-3.svg',   68,  0.12],
+    [BASE+'background-element-4.svg',   145, 0.24],
+    [BASE+'background-element-4.svg',   82,  0.14],
+    [BASE+'background-element-4-1.png', 195, 0.20],
+    [BASE+'background-element-4-1.png', 125, 0.13],
+    [BASE+'background-element-6.png',   145, 0.26],
+    [BASE+'background-element-6.png',   88,  0.15],
+    [BASE+'background-element-8.svg',   128, 0.22],
+    [BASE+'background-element-8.svg',   74,  0.13],
+    [BASE+'background-element-10.svg',  155, 0.24],
+    [BASE+'background-element-10.svg',  92,  0.16],
+    [BASE+'background-element-10.svg',  64,  0.11],
+    [BASE+'background-element-11.svg',  138, 0.22],
+    [BASE+'background-element-11.svg',  86,  0.14],
+    [BASE+'Background-text.svg',        680, 0.8],
+  ];
+
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+
+  specs.forEach(([src, size, op]) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.className = 'bg-el';
+    img.style.width   = size + 'px';
+    img.style.opacity = op;
+    container.appendChild(img);
+
+    // Random starting position within viewport
+    const x = Math.random() * Math.max(1, W - size);
+    const y = Math.random() * Math.max(1, H - size);
+
+    // DVD-style speed: slow and consistent (~0.3–0.55 px/frame)
+    const speed = 0.3 + Math.random() * 0.25;
+    const angle = Math.random() * Math.PI * 2;
+
+    dvdItems.push({
+      img,
+      size,
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      rot: (Math.random() - 0.5) * 90,  // start within ±45°
+      rotSpeed: (Math.random() < 0.5 ? 1 : -1) * (0.02 + Math.random() * 0.06)
+    });
+  });
+
+  requestAnimationFrame(animateDVD);
+}
+
+function animateDVD() {
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+
+  dvdItems.forEach(el => {
+    el.x   += el.vx;
+    el.y   += el.vy;
+
+    // Clamp rotation to ±45° and reverse spin direction at limits
+    el.rot += el.rotSpeed;
+    if (el.rot >  45) { el.rot =  45; el.rotSpeed = -Math.abs(el.rotSpeed); }
+    if (el.rot < -45) { el.rot = -45; el.rotSpeed =  Math.abs(el.rotSpeed); }
+
+    // Bounce off edges
+    if (el.x <= 0)          { el.vx =  Math.abs(el.vx); el.x = 0; }
+    if (el.x + el.size >= W) { el.vx = -Math.abs(el.vx); el.x = W - el.size; }
+    if (el.y <= 0)          { el.vy =  Math.abs(el.vy); el.y = 0; }
+    if (el.y + el.size >= H) { el.vy = -Math.abs(el.vy); el.y = H - el.size; }
+
+    el.img.style.left      = el.x + 'px';
+    el.img.style.top       = el.y + 'px';
+    el.img.style.transform = 'rotate(' + el.rot + 'deg)';
+  });
+
+  requestAnimationFrame(animateDVD);
+}
+</script>
+</body>
+</html>
