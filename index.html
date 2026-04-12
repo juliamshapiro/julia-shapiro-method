@@ -13,7 +13,7 @@
       --black: #000000;
       --white: #ffffff;
       --gray: #888888;
-      --gray-dark: #555555;
+      --gray-dark: #777777;
       --red: #cc3333;
     }
 
@@ -112,11 +112,63 @@
       .box {
         box-shadow: 5px 5px 0 var(--green);
       }
-    }
-
-    @media (max-width: 600px) {
       p {
         font-size: 0.85rem;
+      }
+      .step-indicator {
+        font-size: 0.65rem;
+      }
+      .warning-label {
+        font-size: 0.72rem;
+      }
+      .warning-block p {
+        font-size: 0.82rem;
+      }
+      input[type="text"],
+      input[type="number"] {
+        font-size: 0.82rem;
+      }
+      .pendulum-labels {
+        font-size: 0.68rem;
+      }
+      .axis-name {
+        font-size: 0.58rem;
+      }
+      .spectrum-labels {
+        font-size: 0.62rem;
+      }
+      .placed-partner {
+        font-size: 0.7rem;
+      }
+      .pattern-opt-label {
+        font-size: 0.75rem;
+      }
+      .trait-brainstorm-item span {
+        font-size: 0.82rem;
+      }
+      .rank-text {
+        font-size: 0.82rem;
+      }
+      .partner-check label {
+        font-size: 0.58rem;
+      }
+      .results-block-title {
+        font-size: 0.65rem;
+      }
+      .results-block p {
+        font-size: 0.8rem;
+      }
+      .results-bubble {
+        font-size: 0.72rem;
+      }
+      .results-col-head {
+        font-size: 0.62rem;
+      }
+      .results-trait-row {
+        font-size: 0.78rem;
+      }
+      .verdict-prompt-section p {
+        font-size: 0.65rem;
       }
     }
 
@@ -143,7 +195,7 @@
 
     .step-indicator {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       color: var(--green);
       text-transform: uppercase;
       letter-spacing: 0.15em;
@@ -275,7 +327,7 @@
     }
     input[type="text"]::placeholder,
     input[type="number"]::placeholder {
-      color: #444;
+      color: #666;
     }
 
     /* ── Thought bubbles ── */
@@ -304,7 +356,7 @@
     .thought-bubble .thought-del {
       background: none;
       border: none;
-      color: #555;
+      color: #777;
       cursor: pointer;
       font-size: 0.75rem;
       line-height: 1;
@@ -438,14 +490,14 @@
       border-bottom: 1px solid #111;
     }
     .trait-brainstorm-item span {
-      font-size: 0.82rem;
+      font-size: 0.88rem;
       color: #ccc;
       flex: 1;
     }
     .trait-brainstorm-item .trait-del {
       background: none;
       border: none;
-      color: #555;
+      color: #777;
       cursor: pointer;
       font-size: 0.75rem;
       line-height: 1;
@@ -503,7 +555,7 @@
     }
     .rank-text {
       flex: 1;
-      font-size: 0.82rem;
+      font-size: 0.88rem;
       color: #ccc;
     }
     .partner-check {
@@ -520,8 +572,8 @@
     }
     .partner-check label {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.58rem;
-      color: #555;
+      font-size: 0.68rem;
+      color: #777;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       cursor: pointer;
@@ -540,7 +592,7 @@
     .score-context {
       font-family: "Source Code Pro", monospace;
       font-size: 0.65rem;
-      color: #444;
+      color: #777;
       text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -593,7 +645,7 @@
     }
     .pattern-opt-label {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.75rem;
+      font-size: 0.88rem;
       color: #ccc;
       letter-spacing: 0.04em;
     }
@@ -640,7 +692,7 @@
       display: flex;
       justify-content: space-between;
       font-family: "Source Code Pro", monospace;
-      font-size: 0.68rem;
+      font-size: 0.78rem;
       color: var(--green);
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -665,7 +717,7 @@
     .axis-name {
       position: absolute;
       font-family: "Source Code Pro", monospace;
-      font-size: 0.58rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       white-space: nowrap;
@@ -690,7 +742,7 @@
       display: flex;
       justify-content: space-between;
       font-family: "Source Code Pro", monospace;
-      font-size: 0.62rem;
+      font-size: 0.75rem;
       color: #555;
       margin-bottom: 4px;
       text-transform: uppercase;
@@ -708,7 +760,7 @@
     .prev-partner-row input[type="text"] { flex: 1; }
     .placed-partner {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.7rem;
+      font-size: 0.85rem;
       color: var(--green);
       padding: 4px 0;
       display: flex;
@@ -750,7 +802,7 @@
     }
     .results-block-title {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       color: var(--green);
       text-transform: uppercase;
       letter-spacing: 0.14em;
@@ -759,7 +811,7 @@
       border-bottom: 1px solid #1a1a1a;
     }
     .results-block p {
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       margin-bottom: 5px;
       color: #bbb;
     }
@@ -772,7 +824,7 @@
     .results-bubble {
       border: 1px solid #2a2a2a;
       padding: 4px 10px;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       color: #aaa;
     }
     .results-two-col {
@@ -783,14 +835,14 @@
     }
     .results-col-head {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.62rem;
+      font-size: 0.72rem;
       color: var(--green);
       text-transform: uppercase;
       letter-spacing: 0.1em;
       margin-bottom: 8px;
     }
     .results-trait-row {
-      font-size: 0.78rem;
+      font-size: 0.88rem;
       padding: 4px 0;
       border-bottom: 1px solid #0d0d0d;
       display: flex;
@@ -798,7 +850,7 @@
       gap: 6px;
     }
     .results-trait-row.has-trait { color: var(--green); }
-    .results-trait-row.no-trait { color: #555; }
+    .results-trait-row.no-trait { color: #777; }
     .has-mark {
       font-family: "Source Code Pro", monospace;
       font-size: 0.6rem;
@@ -813,8 +865,8 @@
     }
     .verdict-prompt-section p {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.65rem;
-      color: #555;
+      font-size: 0.75rem;
+      color: #777;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       margin-bottom: 14px;
@@ -887,7 +939,7 @@
       <div class="screen active" id="s-landing">
         <div class="box box-landing">
           <h1>The Julia Shapiro Method</h1>
-          <p><em>The</em> <em>Julia Shapiro Method</em> is designed to help those experiencing relationship turmoil decide whether or not they should call it quits. The following Steps serve as a powerful tool, refined over the years, to help The Participant gain insights into their Current Romantic Relationship.</p>
+          <p><em>The</em> <em>Julia Shapiro Method</em> is a four-step method designed to help those experiencing relationship turmoil decide whether or not they should call it quits. The Method serves as a powerful tool, refined over the years, to help The Participant gain insights into their Current Romantic Relationship.</p>
           <div class="warning-block">
             <div class="warning-label" style="display:flex;align-items:flex-end;gap:8px;"><span style="font-size:1.8rem;line-height:1;">⚠</span><span>Warning</span></div>
             <p>The Method is not to be used lightly. <em>The</em> <em>Julia Shapiro Method</em> is a dangerous tool. Only complete The Steps when you truly feel ready to witness The Results.</p>
@@ -1733,10 +1785,10 @@ function renderResults() {
 
   const prosHtml = S.pros.length
     ? S.pros.map(p => '<p>— ' + p + '</p>').join('')
-    : '<p style="color:#444;">None recorded.</p>';
+    : '<p style="color:#666;">None recorded.</p>';
   const consHtml = S.cons.length
     ? S.cons.map(c => '<p>— ' + c + '</p>').join('')
-    : '<p style="color:#444;">None recorded.</p>';
+    : '<p style="color:#666;">None recorded.</p>';
 
   const traitsHtml = S.topTraits.slice(0, topN).map((t, i) =>
     '<div class="results-trait-row ' + (t.hasPartner ? 'has-trait' : 'no-trait') + '">' +
@@ -1772,7 +1824,7 @@ function renderResults() {
       '<div class="results-block-title">Romance Report Card</div>' +
       '<p style="margin-bottom:12px;">Score: <span style="font-family:\'Source Code Pro\',monospace;font-size:1.1rem;color:' + (S.score < 6 ? 'var(--red)' : 'var(--green)') + ';">' +
         S.score.toFixed(1) + '/10' + failBadge + '</span></p>' +
-      '<p style="font-size:0.72rem;color:#555;font-family:\'Source Code Pro\',monospace;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Current Partner has ' + matchCount + ' of ' + total + ' evaluated traits.</p>' +
+      '<p style="font-size:0.72rem;color:#777;font-family:\'Source Code Pro\',monospace;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Current Partner has ' + matchCount + ' of ' + total + ' evaluated traits.</p>' +
       traitsHtml +
     '</div>' +
 
