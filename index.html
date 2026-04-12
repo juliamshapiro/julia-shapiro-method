@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Julia Shapiro Method</title>
-  <link rel="icon" type="image/png" href="/favicon-01.png">
+  <link rel="icon" type="image/png" href="/favicon-02.png">
   <link rel="stylesheet" href="https://use.typekit.net/wex4shz.css">
   <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -693,6 +693,7 @@
       justify-content: space-between;
       font-family: "Source Code Pro", monospace;
       font-size: 0.78rem;
+      font-weight: 700;
       color: var(--green);
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -705,7 +706,7 @@
       position: relative;
       min-height: 44px;
       margin: 6px 4px 0;
-      border-top: 1px solid #1a1a1a;
+      border-top: 2px solid #1a1a1a;
     }
     .axis-tick {
       position: absolute;
@@ -731,11 +732,11 @@
       margin: 16px 0;
     }
     .placement-phase p {
-      font-family: "Source Code Pro", monospace;
-      font-size: 0.72rem;
-      color: var(--green);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-family: "cofo-sans-pixel", sans-serif;
+      font-size: 0.95rem;
+      color: var(--white);
+      text-transform: none;
+      letter-spacing: 0;
       margin-bottom: 14px;
     }
     .spectrum-labels {
@@ -1596,7 +1597,7 @@ function renderPlacementPhase() {
   if (S.placementPhase === 'previous') {
     area.innerHTML =
       '<div class="placement-phase">' +
-        '<p>Use the slider below to place your Previous Partners along The Pendulum.</p>' +
+        '<p>Use the slider below to place your <em>Previous Partners</em> along The Pendulum.</p>' +
         '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
         '<input type="range" id="prevSlider" min="0" max="100" value="50">' +
         '<div class="prev-partner-row" style="margin-top:12px;">' +
@@ -1604,7 +1605,8 @@ function renderPlacementPhase() {
           '<button class="btn" onclick="addPrevPartner()">Add</button>' +
         '</div>' +
         '<div id="placedList"></div>' +
-        '<div style="margin-top:14px;">' +
+        '<div class="nav" style="margin-top:14px;">' +
+          '<button class="btn btn-ghost" onclick="goTo(\'s-step4-pattern\')">← Back</button>' +
           '<button class="btn" id="prevPhaseNextBtn" onclick="nextPhase()" ' + (S.prevPartners.length > 0 ? '' : 'disabled') + '>Next →</button>' +
         '</div>' +
       '</div>';
@@ -1613,10 +1615,11 @@ function renderPlacementPhase() {
   } else if (S.placementPhase === 'ideal') {
     area.innerHTML =
       '<div class="placement-phase">' +
-        '<p>Use the slider below to place your Ideal Partner along The Pendulum.</p>' +
+        '<p>Use the slider below to place your <em>Ideal Partner</em> along The Pendulum.</p>' +
         '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
-        '<input type="range" id="idealSlider" min="0" max="100" value="50">' +
-        '<div style="margin-top:14px;">' +
+        '<input type="range" id="idealSlider" min="0" max="100" value="' + S.idealPos + '">' +
+        '<div class="nav" style="margin-top:14px;">' +
+          '<button class="btn btn-ghost" onclick="prevPhase()">← Back</button>' +
           '<button class="btn" onclick="nextPhase()">Next →</button>' +
         '</div>' +
       '</div>';
@@ -1624,10 +1627,11 @@ function renderPlacementPhase() {
   } else if (S.placementPhase === 'current') {
     area.innerHTML =
       '<div class="placement-phase">' +
-        '<p>Use the slider below to place your Current Partner along The Pendulum.</p>' +
+        '<p>Use the slider below to place your <em>Current Partner</em> along The Pendulum.</p>' +
         '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
-        '<input type="range" id="currentSlider" min="0" max="100" value="50">' +
-        '<div style="margin-top:14px;">' +
+        '<input type="range" id="currentSlider" min="0" max="100" value="' + S.currentPos + '">' +
+        '<div class="nav" style="margin-top:14px;">' +
+          '<button class="btn btn-ghost" onclick="prevPhase()">← Back</button>' +
           '<button class="btn" onclick="nextPhase()">Done</button>' +
         '</div>' +
       '</div>';
@@ -1668,6 +1672,17 @@ function renderPlacedPartners() {
       '<button class="del-partner-btn" onclick="removePrevPartner(' + i + ')">×</button>';
     placed.appendChild(d);
   });
+}
+
+function prevPhase() {
+  if (S.placementPhase === 'ideal') {
+    S.placementPhase = 'previous';
+  } else if (S.placementPhase === 'current') {
+    const sl = document.getElementById('currentSlider');
+    S.currentPos = sl ? parseInt(sl.value) : 50;
+    S.placementPhase = 'ideal';
+  }
+  renderPlacementPhase();
 }
 
 function nextPhase() {
