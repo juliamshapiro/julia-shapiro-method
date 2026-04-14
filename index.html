@@ -19,6 +19,26 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Custom cursors ── */
+    body {
+      cursor: url('Cursors/default-cursor.png') 0 0, auto;
+    }
+    input[type="text"], input[type="number"], textarea {
+      cursor: url('Cursors/input-cursor.png') 24 24, text;
+    }
+    .btn:disabled, .btn:disabled:hover {
+      cursor: url('Cursors/disabled-cursor.png') 24 24, not-allowed;
+    }
+    .btn:not(:disabled), .btn-beg, .pattern-opt, .thought-bubble, .tag-btn, .thought-del, .trait-del, .del-btn, .del-partner-btn, .add-entry, .partner-check, input[type="checkbox"], input[type="radio"], input[type="range"] {
+      cursor: url('Cursors/button-hover-cursor.png') 16 0, pointer !important;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      cursor: url('Cursors/button-hover-cursor.png') 16 0, pointer !important;
+    }
+    input[type="range"]::-moz-range-thumb {
+      cursor: url('Cursors/button-hover-cursor.png') 16 0, pointer !important;
+    }
+
     body {
       background: #111;
       color: var(--white);
@@ -78,6 +98,70 @@
       will-change: transform;
     }
 
+    /* ── Progress bar ── */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
+      background: rgba(0, 0, 0, 0.9);
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .progress-bar.pb-hidden { display: none; }
+
+    .pb-circle-big {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #3a3a3a;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: #3a3a3a;
+      flex-shrink: 0;
+      transition: border-color 0.4s, background 0.4s, color 0.4s;
+    }
+    .pb-circle-small {
+      width: 7px;
+      height: 7px;
+      border: 1.5px solid #3a3a3a;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: border-color 0.4s, background 0.4s;
+    }
+    .pb-circle-big.pb-filled {
+      border-color: var(--green);
+      background: var(--green);
+      color: #000;
+    }
+    .pb-circle-small.pb-filled {
+      border-color: var(--green);
+      background: var(--green);
+    }
+    .pb-line {
+      width: 18px;
+      height: 1px;
+      background: #2a2a2a;
+      margin: 0 5px;
+      flex-shrink: 0;
+      transition: background 0.4s;
+    }
+    .pb-line.pb-filled { background: var(--green); }
+
+    @media (max-width: 600px) {
+      .pb-circle-big { width: 16px; height: 16px; font-size: 0.48rem; }
+      .pb-circle-small { width: 5px; height: 5px; }
+      .pb-line { width: 10px; margin: 0 3px; }
+    }
+
     /* ── App shell ── */
     .app {
       position: relative;
@@ -86,7 +170,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 48px 20px;
+      padding: 80px 20px 48px;
     }
 
     .screen {
@@ -109,6 +193,7 @@
     }
 
     @media (max-width: 600px) {
+      .app { padding-top: 65px; }
       .box {
         box-shadow: 5px 5px 0 var(--green);
       }
@@ -224,6 +309,33 @@
       font-size: 0.95rem;
       color: var(--white);
     }
+    /* ── Screen transition ── */
+    @keyframes slideOutLeft {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-110vw); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .screen-exiting {
+      animation: slideOutLeft 0.55s cubic-bezier(0.55, 0, 0.7, 1) forwards;
+      pointer-events: none;
+    }
+    .screen-entering {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .privacy-note {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.75rem;
+      color: #888;
+      text-align: center;
+      letter-spacing: 0.05em;
+      margin-top: 16px;
+      margin-bottom: 0;
+    }
+
     .warning-label {
       font-family: "Source Code Pro", monospace;
       font-size: 1rem;
@@ -731,6 +843,10 @@
       padding: 20px;
       margin: 16px 0;
     }
+    .placement-phase p em {
+      color: var(--green);
+      font-style: normal;
+    }
     .placement-phase p {
       font-family: "cofo-sans-pixel", sans-serif;
       font-size: 0.95rem;
@@ -933,6 +1049,36 @@
   <div id="bgGrid"></div>
   <div class="bg-elements" id="bgElements"></div>
 
+  <!-- ══════════════ PROGRESS BAR ══════════════ -->
+  <!-- pattern: ① · ② · · ③ · · ④ · · · · -->
+  <div class="progress-bar pb-hidden" id="progressBar">
+    <div class="pb-circle-big" id="pb-0">1</div>
+    <div class="pb-line" id="pb-line-0"></div>
+    <div class="pb-circle-small" id="pb-1"></div>
+    <div class="pb-line" id="pb-line-1"></div>
+    <div class="pb-circle-big" id="pb-2">2</div>
+    <div class="pb-line" id="pb-line-2"></div>
+    <div class="pb-circle-small" id="pb-3"></div>
+    <div class="pb-line" id="pb-line-3"></div>
+    <div class="pb-circle-small" id="pb-4"></div>
+    <div class="pb-line" id="pb-line-4"></div>
+    <div class="pb-circle-big" id="pb-5">3</div>
+    <div class="pb-line" id="pb-line-5"></div>
+    <div class="pb-circle-small" id="pb-6"></div>
+    <div class="pb-line" id="pb-line-6"></div>
+    <div class="pb-circle-small" id="pb-7"></div>
+    <div class="pb-line" id="pb-line-7"></div>
+    <div class="pb-circle-big" id="pb-8">4</div>
+    <div class="pb-line" id="pb-line-8"></div>
+    <div class="pb-circle-small" id="pb-9"></div>
+    <div class="pb-line" id="pb-line-9"></div>
+    <div class="pb-circle-small" id="pb-10"></div>
+    <div class="pb-line" id="pb-line-10"></div>
+    <div class="pb-circle-small" id="pb-11"></div>
+    <div class="pb-line" id="pb-line-11"></div>
+    <div class="pb-circle-small" id="pb-12"></div>
+  </div>
+
   <div class="app">
     <div id="screenWrap">
 
@@ -946,8 +1092,9 @@
             <p>The Method is not to be used lightly. <em>The</em> <em>Julia Shapiro Method</em> is a dangerous tool. Only complete The Steps when you truly feel ready to witness The Results.</p>
           </div>
           <div class="nav" style="justify-content:flex-end;">
-            <button class="btn" onclick="goTo('s-step1')">I am ready to begin.</button>
+            <button class="btn" onclick="beginMethod()">I am ready to begin.</button>
           </div>
+          <p class="privacy-note">All responses are private to this session and are never stored or shared.</p>
         </div>
       </div>
 
@@ -964,7 +1111,7 @@
           <div class="thoughts-wrap" id="thoughtsWrap"></div>
           <div class="counter" id="thoughtCounter">0 / 15 minimum</div>
           <div class="nav">
-            <button class="btn btn-ghost" onclick="goTo('s-landing')">← Back</button>
+            <button class="btn btn-ghost" onclick="reverseToLanding()">← Back</button>
             <button class="btn" id="step1NextBtn" onclick="initStep2()" disabled>Next →</button>
           </div>
         </div>
@@ -975,7 +1122,7 @@
         <div class="box">
           <div class="step-indicator">Step 2 of 4</div>
           <h1>Hearts &amp; Hazards</h1>
-          <p>Mark anything that feels positive with a&nbsp;:) and anything that feels negative with a&nbsp;:( &nbsp;...this will help you fill out the following Pros/Cons lists about your Current Romantic Partner. Feel free to add anything new that comes to mind.</p>
+          <p>Mark anything that feels positive with a&nbsp;:) and anything that feels negative with a&nbsp;:( &nbsp;...this will help you fill out the following Pros/Cons lists about your Current Romantic Partner.</p>
           <div class="tag-progress" id="tagProgress">— of —</div>
           <div class="tag-card">
             <div class="thought-text" id="tagThoughtText"></div>
@@ -996,22 +1143,22 @@
         <div class="box">
           <div class="step-indicator">Step 2 of 4</div>
           <h1>Hearts &amp; Hazards</h1>
-          <p>Here are your Pros and Cons. Feel free to edit, delete, or add new entries.</p>
+          <p>Here are your Hearts and Hazards. Feel free to edit, delete, or add new entries.</p>
           <div class="pros-cons">
             <div class="pros-col">
-              <div class="list-col-header">Pros :)</div>
+              <div class="list-col-header">Hearts :)</div>
               <div id="prosList"></div>
               <button class="add-entry" onclick="addListEntry('pros')">+ Add</button>
             </div>
             <div class="cons-col">
-              <div class="list-col-header">Cons :(</div>
+              <div class="list-col-header">Hazards :(</div>
               <div id="consList"></div>
               <button class="add-entry" onclick="addListEntry('cons')">+ Add</button>
             </div>
           </div>
           <div class="nav">
             <button class="btn btn-ghost" onclick="resetTagging()">← Retag</button>
-            <button class="btn" onclick="goTo('s-step3-brainstorm')">Next →</button>
+            <button class="btn" onclick="slideForward('s-step2-lists','s-step3-brainstorm')">Next →</button>
           </div>
         </div>
       </div>
@@ -1028,7 +1175,7 @@
           </div>
           <div id="traitBrainstormList"></div>
           <div class="nav">
-            <button class="btn btn-ghost" onclick="goTo('s-step2-lists')">← Back</button>
+            <button class="btn btn-ghost" onclick="slideBack('s-step3-brainstorm','s-step2-lists')">← Back</button>
             <button class="btn" id="step3NextBtn" onclick="initRanking()" disabled>Next →</button>
           </div>
         </div>
@@ -1042,7 +1189,7 @@
           <p>Drag to rank your traits from most to least important. Mark the traits your Current Partner has. <span style="color:var(--green);">Your top 10 are scored</span> — the rest appear for reference only.</p>
           <div id="traitRankList" style="margin:16px 0;"></div>
           <div class="nav">
-            <button class="btn btn-ghost" onclick="goTo('s-step3-brainstorm')">← Back</button>
+            <button class="btn btn-ghost" onclick="slideBack('s-step3-rank','s-step3-brainstorm')">← Back</button>
             <button class="btn" onclick="goToScore()">Next →</button>
           </div>
         </div>
@@ -1057,7 +1204,7 @@
           <div class="score-display-big" id="autoScoreDisplay">—</div>
           <div class="score-context" id="scoreContextText"></div>
           <div class="nav">
-            <button class="btn btn-ghost" onclick="goTo('s-step3-rank')">← Back</button>
+            <button class="btn btn-ghost" onclick="slideBack('s-step3-score','s-step3-rank')">← Back</button>
             <button class="btn" onclick="submitScore()">Submit Score</button>
           </div>
         </div>
@@ -1072,7 +1219,7 @@
           <div class="gate-question">Was this a mistake?</div>
           <div class="nav" style="justify-content:center;gap:16px;margin-top:16px;">
             <button class="btn btn-ghost" onclick="gateRevise()">Yes — let me revise</button>
-            <button class="btn btn-red" onclick="goTo('s-gate-confirm')">No</button>
+            <button class="btn btn-red" onclick="slideForward('s-gate','s-gate-confirm')">No</button>
           </div>
         </div>
       </div>
@@ -1083,7 +1230,7 @@
           <div class="gate-alert">CONFIRMED FAIL</div>
           <div class="nav nav-center">
             <button class="btn" onclick="skipToResults()" style="width:260px;">Proceed to The Results</button>
-            <button class="btn-beg" onclick="goTo('s-gate-beg')">I realize I have failed, but would like to proceed to Step 4. Please.</button>
+            <button class="btn-beg" onclick="slideForward('s-gate-confirm','s-gate-beg')">I realize I have failed, but would like to proceed to Step 4. Please.</button>
           </div>
         </div>
       </div>
@@ -1110,8 +1257,8 @@
             <div class="pattern-opt" onclick="selectPattern(this,'Romantic','Logical')">
               <input type="radio" name="pat"><span class="pattern-opt-label">Romantic &nbsp;/&nbsp; Logical</span>
             </div>
-            <div class="pattern-opt" onclick="selectPattern(this,'Adventurous','Homebody')">
-              <input type="radio" name="pat"><span class="pattern-opt-label">Adventurous &nbsp;/&nbsp; Homebody</span>
+            <div class="pattern-opt" onclick="selectPattern(this,'Adventurous','Cautious')">
+              <input type="radio" name="pat"><span class="pattern-opt-label">Adventurous &nbsp;/&nbsp; Cautious</span>
             </div>
             <div class="pattern-opt" onclick="selectPattern(this,'Introverted','Extroverted')">
               <input type="radio" name="pat"><span class="pattern-opt-label">Introverted &nbsp;/&nbsp; Extroverted</span>
@@ -1132,7 +1279,7 @@
             </div>
           </div>
           <div class="nav">
-            <button class="btn btn-ghost" id="patternBackBtn" onclick="goTo('s-step3-score')">← Back</button>
+            <button class="btn btn-ghost" id="patternBackBtn" onclick="slideBack('s-step4-pattern','s-step3-score')">← Back</button>
             <button class="btn" id="patternNextBtn" onclick="initPendulum()" disabled>Next →</button>
           </div>
         </div>
@@ -1173,7 +1320,7 @@
             <p class="perceive-text">Perceive the Power of the Pendulum.</p>
           </div>
           <div class="nav">
-            <button class="btn btn-ghost" onclick="goTo('s-step4-pattern')">← Back</button>
+            <button class="btn btn-ghost" onclick="slideBack('s-step4-pendulum','s-step4-pattern')">← Back</button>
             <button class="btn" id="pendulumNextBtn" onclick="finishPendulum()" style="display:none;">View The Results →</button>
           </div>
         </div>
@@ -1186,7 +1333,7 @@
           <div id="resultsContent"></div>
           <div class="verdict-prompt-section">
             <p>Need a more definitive answer?</p>
-            <button class="btn" onclick="goTo('s-verdict')">See The Verdict</button>
+            <button class="btn" onclick="slideForward('s-results','s-verdict')">See The Verdict</button>
           </div>
           <div class="restart-section">
             <button class="btn btn-ghost" onclick="resetAll()" style="font-size:0.62rem;letter-spacing:0.1em;">↺ Repeat the Method</button>
@@ -1201,7 +1348,7 @@
           <div class="determination-label">A determination has been reached.</div>
           <div class="verdict-body" id="verdictBody"></div>
           <div class="nav" style="justify-content:center;margin-top:28px;">
-            <button class="btn btn-ghost" onclick="goTo('s-results')">← Return to The Results</button>
+            <button class="btn btn-ghost" onclick="slideBack('s-verdict','s-results')">← Return to The Results</button>
           </div>
           <div class="restart-section">
             <button class="btn btn-ghost" onclick="resetAll()" style="font-size:0.62rem;letter-spacing:0.1em;">↺ Repeat the Method</button>
@@ -1228,19 +1375,234 @@ const S = {
   prevPartners: [],     // [{name, pos}]
   idealPos: 50,
   currentPos: 50,
-  placementPhase: 'previous'
+  placementPhase: 'previous',
+  maxProgress: -1
 };
 
 let dragSrcIdx = null;
 
 // ═══════════════════════════════════════════
+// PROGRESS BAR
+// ═══════════════════════════════════════════
+// Node layout: ① · ② · · ③ · · ④  (nodes 0–8)
+// ① = node 0 (s-step1)
+// ·  = node 1 (s-step2-tag)
+// ② = node 2 (s-step2-lists)
+// ·  = node 3 (s-step3-brainstorm)
+// ·  = node 4 (s-step3-rank/score/gate)
+// ③ = node 5 (s-step4-pattern)
+// ·  = node 6 (s-step4-pendulum)
+// ·  = node 7 (s-results)
+// ④ = node 8 (s-verdict)
+// Node layout: ① · ② · · ③ · · ④ · · · ·  (nodes 0–12)
+// Rule: entering the first screen of each step fills that step's big circle AND
+// the first small dot after it simultaneously.
+//
+// s-step1              → node 1  (fills ① at 0 + dot at 1)
+// s-step2-tag          → node 3  (fills ② at 2 + dot at 3)
+// s-step2-lists        → node 4
+// s-step3-brainstorm   → node 6  (fills ③ at 5 + dot at 6)
+// s-step3-rank/score/gate → node 7
+// s-step4-pattern      → node 9  (fills ④ at 8 + dot at 9)
+// pendulum phase=previous → node 10
+// pendulum phase=ideal    → node 11
+// pendulum phase=current/done → node 12
+const SCREEN_TO_NODE = {
+  's-step1':            1,
+  's-step2-tag':        3,
+  's-step2-lists':      4,
+  's-step3-brainstorm': 6,
+  's-step3-rank':       7,
+  's-step3-score':      7,
+  's-gate':             7,
+  's-gate-confirm':     7,
+  's-gate-beg':         7,
+  's-step4-pattern':    9,
+  's-results':          12,
+  's-verdict':          12
+};
+
+const PHASE_TO_NODE = {
+  'previous': 10,
+  'ideal':    11,
+  'current':  12
+};
+
+function updateProgressBar(screenId) {
+  const bar = document.getElementById('progressBar');
+  if (!bar) return;
+  if (screenId === 's-landing') {
+    bar.classList.add('pb-hidden');
+    return;
+  }
+  bar.classList.remove('pb-hidden');
+  let nodeIndex = SCREEN_TO_NODE[screenId];
+  if (screenId === 's-step4-pendulum') {
+    nodeIndex = PHASE_TO_NODE[S.placementPhase] || 10;
+  }
+  if (nodeIndex !== undefined && nodeIndex > S.maxProgress) {
+    S.maxProgress = nodeIndex;
+  }
+  const max = S.maxProgress;
+  for (let i = 0; i <= 12; i++) {
+    const el = document.getElementById('pb-' + i);
+    if (el) el.classList.toggle('pb-filled', i <= max);
+    if (i < 12) {
+      const line = document.getElementById('pb-line-' + i);
+      if (line) line.classList.toggle('pb-filled', i < max);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════
 function goTo(id) {
+  if (window._transitionLine) {
+    window._transitionLine.remove();
+    window._transitionLine = null;
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  updateProgressBar(id);
 }
+
+// ─── Generic animated transitions ───────────────────────────────────────────
+// slideForward: current card exits left, new card enters from right, line grows.
+// slideBack:    current card exits right, previous card enters from left, line shrinks.
+// Both are no-ops if an animation is already running (_sliding guard).
+
+function slideForward(fromId, toId) {
+  const fromEl = document.getElementById(fromId);
+  const toEl   = document.getElementById(toId);
+  if (!fromEl || !toEl) { goTo(toId); return; }
+  if (window._sliding) return;
+  window._sliding = true;
+  // Keep old line alive until card1 exits — it stays visible behind the moving card
+  const oldLine = window._transitionLine;
+  window._transitionLine = null;
+  window.scrollTo(0, 0);
+  updateProgressBar(toId);
+  const vw = window.innerWidth;
+  const box = fromEl.querySelector('.box');
+  const rect = box ? box.getBoundingClientRect() : null;
+  const lineTop = window.innerHeight / 2;
+  const c1i = vw/2, c1f = -vw*0.6, c2i = vw*1.5, c2f = vw/2;
+  const p1D = 560, p2S = 360, p2D = 500;
+  const line = document.createElement('div');
+  line.style.cssText = 'position:fixed;top:'+lineTop+'px;transform:translateY(-50%);left:'+c1i+'px;width:0;height:2px;background:#008544;z-index:9;pointer-events:none';
+  document.body.appendChild(line);
+  const eI = t=>t*t, eO = t=>1-(1-t)*(1-t);
+  let t0=null, done=false;
+  function frame(ts) {
+    if (!t0) t0=ts;
+    const e=ts-t0, p1t=Math.min(e/p1D,1);
+    const c1=c1i+(c1f-c1i)*eI(p1t);
+    if (!done) fromEl.style.transform=`translateX(${c1-c1i}px)`;
+    let rx;
+    if (e<p2S) { rx=c1i+(vw-c1i)*eO(e/p2S); }
+    else {
+      if (!done) {
+        done=true;
+        fromEl.classList.remove('active'); fromEl.style.transform='';
+        // Card1 has exited — safe to remove the old line now
+        if (oldLine) oldLine.remove();
+        toEl.style.transform=`translateX(${c2i-c2f}px)`; toEl.classList.add('active');
+      }
+      const p2t=Math.min((e-p2S)/p2D,1);
+      const c2=c2i+(c2f-c2i)*eO(p2t);
+      toEl.style.transform=`translateX(${c2-c2f}px)`; rx=c2;
+      if (p2t>=1) {
+        toEl.style.transform='';
+        line.style.left=c1+'px'; line.style.width=(c2f-c1)+'px';
+        window._transitionLine=line; window._sliding=false; return;
+      }
+    }
+    line.style.left=c1+'px'; line.style.width=Math.max(0,rx-c1)+'px';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function slideBack(fromId, toId) {
+  const fromEl = document.getElementById(fromId);
+  const toEl   = document.getElementById(toId);
+  if (!fromEl || !toEl) { goTo(toId); return; }
+  if (window._sliding) return;
+  window._sliding = true;
+
+  const existingLine = window._transitionLine;
+  window._transitionLine = null;
+
+  const goingToLanding = (toId === 's-landing');
+
+  window.scrollTo(0, 0);
+  updateProgressBar(toId);
+
+  const vw = window.innerWidth;
+  const c1f = -vw*0.6, c2f = vw/2, c2x = vw*1.5, c1r = vw/2;
+  const p1D = 560, p2S = 360, p2D = 500;
+
+  let lineEl = existingLine;
+  if (!lineEl) {
+    const box  = fromEl.querySelector('.box');
+    const rect = box ? box.getBoundingClientRect() : null;
+    const lineTop = window.innerHeight / 2;
+    lineEl = document.createElement('div');
+    lineEl.style.cssText = 'position:fixed;top:'+lineTop+'px;transform:translateY(-50%);left:'+c1f+'px;width:'+(c2f-c1f)+'px;height:2px;background:#008544;z-index:9;pointer-events:none';
+    document.body.appendChild(lineEl);
+  }
+
+  const eI = t=>t*t, eO = t=>1-(1-t)*(1-t);
+  const rAtP2S = c2f + (c2x-c2f)*eI(p2S/p1D);
+  let t0=null, done=false;
+
+  function frame(ts) {
+    if (!t0) t0=ts;
+    const e=ts-t0, p1t=Math.min(e/p1D,1);
+    const c2=c2f+(c2x-c2f)*eI(p1t);
+    if (!done) fromEl.style.transform=`translateX(${c2-c2f}px)`;
+    let lx=c1f, rx;
+    if (e < p2S) {
+      rx = c2; // follows card B exiting right (same for all screens)
+    } else {
+      if (!done) {
+        done=true;
+        fromEl.classList.remove('active'); fromEl.style.transform='';
+        toEl.style.transform=`translateX(${c1f-c1r}px)`; toEl.classList.add('active');
+      }
+      const p2t=Math.min((e-p2S)/p2D,1);
+      const c1=c1f+(c1r-c1f)*eO(p2t);
+      toEl.style.transform=`translateX(${c1-c1r}px)`;
+      if (goingToLanding) {
+        // Card B is gone — shrink line from where it was (rAtP2S) all the way to 0
+        lx=c1f; rx=rAtP2S*(1-eO(p2t));
+      } else {
+        // Left anchored off-screen, right retracts to card A's center
+        lx=c1f; rx=rAtP2S+(c1r-rAtP2S)*eO(p2t);
+      }
+      if (p2t>=1) {
+        toEl.style.transform='';
+        if (goingToLanding) {
+          lineEl.remove();
+        } else {
+          lineEl.style.left=c1f+'px';
+          lineEl.style.width=(c1r-c1f)+'px';
+          window._transitionLine=lineEl;
+        }
+        window._sliding=false; return;
+      }
+    }
+    lineEl.style.left=lx+'px'; lineEl.style.width=Math.max(0,rx-lx)+'px';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+// ────────────────────────────────────────────────────────────────────────────
+
+function beginMethod()      { slideForward('s-landing', 's-step1'); }
+function reverseToLanding() { slideBack('s-step1', 's-landing'); }
 
 // ═══════════════════════════════════════════
 // STEP 1: MIND MAP
@@ -1299,7 +1661,7 @@ function initStep2() {
   S.tagHistory = [];
   S.pros = []; S.cons = [];
   showTag();
-  goTo('s-step2-tag');
+  slideForward('s-step1', 's-step2-tag');
 }
 
 function resetTagging() {
@@ -1307,13 +1669,13 @@ function resetTagging() {
   S.tagHistory = [];
   S.pros = []; S.cons = [];
   showTag();
-  goTo('s-step2-tag');
+  slideBack('s-step2-lists', 's-step2-tag');
 }
 
 function showTag() {
   if (S.tagIndex >= S.tagQueue.length) {
     renderLists();
-    goTo('s-step2-lists');
+    slideForward('s-step2-tag', 's-step2-lists');
     return;
   }
   document.getElementById('tagThoughtText').textContent = '"' + S.tagQueue[S.tagIndex] + '"';
@@ -1333,7 +1695,7 @@ function tagThought(sentiment) {
 
 function untagThought() {
   if (S.tagIndex === 0) {
-    goTo('s-step1');
+    slideBack('s-step2-tag', 's-step1');
     return;
   }
   const last = S.tagHistory.pop();
@@ -1430,7 +1792,7 @@ function initRanking() {
   S.topTraits.forEach(t => { prevMap[t.text] = t.hasPartner; });
   S.topTraits = S.idealTraits.map(t => ({ text: t, hasPartner: prevMap[t] || false }));
   renderRankList();
-  goTo('s-step3-rank');
+  slideForward('s-step3-brainstorm', 's-step3-rank');
 }
 
 function renderRankList() {
@@ -1513,12 +1875,12 @@ function goToScore() {
   document.getElementById('scoreContextText').textContent =
     checked + ' of ' + topN + ' traits matched';
 
-  goTo('s-step3-score');
+  slideForward('s-step3-rank', 's-step3-score');
 }
 
 function submitScore() {
-  if (S.score < 6) goTo('s-gate');
-  else goTo('s-step4-pattern');
+  if (S.score < 6) slideForward('s-step3-score', 's-gate');
+  else slideForward('s-step3-score', 's-step4-pattern');
 }
 
 // ═══════════════════════════════════════════
@@ -1527,19 +1889,19 @@ function submitScore() {
 function gateRevise() {
   // Return to rank/checkbox screen with state preserved
   renderRankList();
-  goTo('s-step3-rank');
+  slideBack('s-gate', 's-step3-rank');
 }
 
 function skipToResults() {
   S.failedGate = true;
   renderResults();
-  goTo('s-results');
+  slideForward('s-gate-confirm', 's-results');
 }
 
 function begContinue() {
   S.begged = true;
-  document.getElementById('patternBackBtn').onclick = () => goTo('s-gate-beg');
-  goTo('s-step4-pattern');
+  document.getElementById('patternBackBtn').onclick = () => slideBack('s-step4-pattern', 's-gate-beg');
+  slideForward('s-gate-beg', 's-step4-pattern');
 }
 
 // ═══════════════════════════════════════════
@@ -1560,6 +1922,14 @@ function selectPattern(el, left, right) {
   document.getElementById('patternNextBtn').disabled = false;
 }
 
+function updatePlaceholders() {
+  const mobile = window.innerWidth <= 600;
+  const thought = document.getElementById('thoughtInput');
+  if (thought) thought.placeholder = mobile ? 'type a thought' : 'type a thought and press enter';
+  const trait = document.getElementById('traitInput');
+  if (trait) trait.placeholder = mobile ? 'type a trait' : 'type a trait and press enter';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   ['customLeft', 'customRight'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
@@ -1569,6 +1939,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   initGrid();
   loadBgElements();
+  updatePlaceholders();
+  window.addEventListener('resize', updatePlaceholders);
 });
 
 // ═══════════════════════════════════════════
@@ -1586,7 +1958,7 @@ function initPendulum() {
   document.getElementById('perceiveMsg').style.display = 'none';
   document.getElementById('pendulumNextBtn').style.display = 'none';
   renderPlacementPhase();
-  goTo('s-step4-pendulum');
+  slideForward('s-step4-pattern', 's-step4-pendulum');
 }
 
 function renderPlacementPhase() {
@@ -1606,7 +1978,7 @@ function renderPlacementPhase() {
         '</div>' +
         '<div id="placedList"></div>' +
         '<div class="nav" style="margin-top:14px;">' +
-          '<button class="btn btn-ghost" onclick="goTo(\'s-step4-pattern\')">← Back</button>' +
+          '<button class="btn btn-ghost" onclick="slideBack(\'s-step4-pendulum\',\'s-step4-pattern\')">← Back</button>' +
           '<button class="btn" id="prevPhaseNextBtn" onclick="nextPhase()" ' + (S.prevPartners.length > 0 ? '' : 'disabled') + '>Next →</button>' +
         '</div>' +
       '</div>';
@@ -1696,6 +2068,7 @@ function nextPhase() {
     const sl = document.getElementById('currentSlider');
     S.currentPos = sl ? parseInt(sl.value) : 50;
     // All placed — render axis, show perceive + next button
+    updateProgressBar('s-step4-pendulum'); // phase=current → node 12
     document.getElementById('placementArea').innerHTML = '';
     renderPartnerAxis();
     document.getElementById('partnerAxis').style.display = 'block';
@@ -1703,6 +2076,7 @@ function nextPhase() {
     document.getElementById('pendulumNextBtn').style.display = 'inline-block';
     return;
   }
+  updateProgressBar('s-step4-pendulum');
   renderPlacementPhase();
 }
 
@@ -1759,7 +2133,7 @@ function renderPartnerAxis() {
 
 function finishPendulum() {
   renderResults();
-  goTo('s-results');
+  slideForward('s-step4-pendulum', 's-results');
 }
 
 // ═══════════════════════════════════════════
@@ -1827,10 +2201,10 @@ function renderResults() {
       '<div class="results-block-title">Hearts &amp; Hazards</div>' +
       '<div class="results-two-col">' +
         '<div>' +
-          '<div class="results-col-head">Pros :) (' + S.pros.length + ')</div>' + prosHtml +
+          '<div class="results-col-head">Hearts :) (' + S.pros.length + ')</div>' + prosHtml +
         '</div>' +
         '<div>' +
-          '<div class="results-col-head">Cons :( (' + S.cons.length + ')</div>' + consHtml +
+          '<div class="results-col-head">Hazards :( (' + S.cons.length + ')</div>' + consHtml +
         '</div>' +
       '</div>' +
     '</div>' +
@@ -1914,7 +2288,7 @@ function resetAll() {
   document.getElementById('step3NextBtn').disabled = true;
   document.getElementById('autoScoreDisplay').textContent = '—';
   document.getElementById('scoreContextText').textContent = '';
-  document.getElementById('patternBackBtn').onclick = () => goTo('s-step3-score');
+  document.getElementById('patternBackBtn').onclick = () => slideBack('s-step4-pattern', 's-step3-score');
 
   // Deselect pattern
   document.querySelectorAll('.pattern-opt').forEach(o => o.classList.remove('selected'));
