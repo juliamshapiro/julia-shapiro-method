@@ -18,6 +18,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 110%; }
 
     /* ── Custom cursors ── */
     body {
@@ -193,67 +194,23 @@
     }
 
     @media (max-width: 600px) {
+      html { font-size: 110%; }
+      h1 { font-size: 1.28rem; }         /* cancel scale: 1.6 / 1.25 */
+      .score-display-big { font-size: 2.56rem; } /* cancel scale: 3.2 / 1.25 */
       .app { padding-top: 65px; }
       .box {
+        padding: 24px 20px;
         box-shadow: 5px 5px 0 var(--green);
       }
-      p {
-        font-size: 0.85rem;
+      /* Landing button: center on mobile */
+      .nav[style*="flex-end"] { justify-content: center !important; }
+      /* Step 2 lists: stack vertically */
+      .pros-cons {
+        grid-template-columns: 1fr;
       }
-      .step-indicator {
-        font-size: 0.65rem;
-      }
-      .warning-label {
-        font-size: 0.72rem;
-      }
-      .warning-block p {
-        font-size: 0.82rem;
-      }
-      input[type="text"],
-      input[type="number"] {
-        font-size: 0.82rem;
-      }
-      .pendulum-labels {
-        font-size: 0.68rem;
-      }
-      .axis-name {
-        font-size: 0.58rem;
-      }
-      .spectrum-labels {
-        font-size: 0.62rem;
-      }
-      .placed-partner {
-        font-size: 0.7rem;
-      }
-      .pattern-opt-label {
-        font-size: 0.75rem;
-      }
-      .trait-brainstorm-item span {
-        font-size: 0.82rem;
-      }
-      .rank-text {
-        font-size: 0.82rem;
-      }
-      .partner-check label {
-        font-size: 0.58rem;
-      }
-      .results-block-title {
-        font-size: 0.65rem;
-      }
-      .results-block p {
-        font-size: 0.8rem;
-      }
-      .results-bubble {
-        font-size: 0.72rem;
-      }
-      .results-col-head {
-        font-size: 0.62rem;
-      }
-      .results-trait-row {
-        font-size: 0.78rem;
-      }
-      .verdict-prompt-section p {
-        font-size: 0.65rem;
+      .pros-col {
+        border-right: none;
+        border-bottom: 1px solid var(--green);
       }
     }
 
@@ -339,7 +296,7 @@
     .warning-label {
       font-family: "Source Code Pro", monospace;
       font-size: 1rem;
-      color: var(--green);
+      color: var(--red);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       margin-bottom: 8px;
@@ -378,7 +335,7 @@
 
     .btn-beg {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.62rem;
+      font-size: 0.72rem;
       font-weight: 400;
       letter-spacing: 0.07em;
       text-transform: uppercase;
@@ -633,7 +590,7 @@
     .trait-rank-item.dragging { opacity: 0.25; }
     .trait-rank-item.drag-over { border-top: 2px solid var(--green); margin-top: -1px; }
     .trait-rank-item.rank-beyond .rank-text { color: #3a3a3a; }
-    .trait-rank-item.rank-beyond .partner-check label { color: #2a2a2a; }
+
     .trait-rank-item.rank-beyond .rank-num { color: #2a2a2a; }
     .trait-rank-item.rank-beyond .drag-handle { color: #222; }
 
@@ -670,24 +627,49 @@
       font-size: 0.88rem;
       color: #ccc;
     }
+    .rank-list-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 4px 6px;
+      border-bottom: 1px solid #222;
+      margin-bottom: 2px;
+    }
+    .rank-header-spacer {
+      /* matches drag-handle + rank-num widths */
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .rank-header-spacer .s-handle { width: 12px; } /* drag handle approx */
+    .rank-header-spacer .s-num { min-width: 22px; } /* rank-num min-width */
+    .rank-header-trait {
+      flex: 1;
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.62rem;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .rank-header-check {
+      font-family: "Source Code Pro", monospace;
+      font-size: 0.62rem;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      text-align: center;
+    }
     .partner-check {
       display: flex;
       align-items: center;
-      gap: 5px;
+      justify-content: center;
       flex-shrink: 0;
     }
     .partner-check input[type="checkbox"] {
       accent-color: var(--green);
       width: 14px;
       height: 14px;
-      cursor: pointer;
-    }
-    .partner-check label {
-      font-family: "Source Code Pro", monospace;
-      font-size: 0.68rem;
-      color: #777;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
       cursor: pointer;
     }
 
@@ -714,11 +696,9 @@
     /* ── Gate ── */
     .gate-alert {
       font-family: "Source Code Pro", monospace;
-      font-size: 1rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--red);
-      border: 1px solid var(--red);
-      padding: 16px 24px;
       text-align: center;
       letter-spacing: 0.1em;
       margin-bottom: 24px;
@@ -1186,8 +1166,18 @@
         <div class="box">
           <div class="step-indicator">Step 3 of 4</div>
           <h1>Romance Report Card</h1>
-          <p>Drag to rank your traits from most to least important. Mark the traits your Current Partner has. <span style="color:var(--green);">Your top 10 are scored</span> — the rest appear for reference only.</p>
-          <div id="traitRankList" style="margin:16px 0;"></div>
+          <p>Drag to rank your traits from most to least important. <span style="color:var(--green);">Your top 10 are scored</span> — the rest appear for reference only.</p>
+          <div style="margin:16px 0;">
+            <div class="rank-list-header">
+              <div class="rank-header-spacer">
+                <span class="s-handle"></span>
+                <span class="s-num"></span>
+              </div>
+              <span class="rank-header-trait">Trait</span>
+              <span class="rank-header-check">Partner has</span>
+            </div>
+            <div id="traitRankList"></div>
+          </div>
           <div class="nav">
             <button class="btn btn-ghost" onclick="slideBack('s-step3-rank','s-step3-brainstorm')">← Back</button>
             <button class="btn" onclick="goToScore()">Next →</button>
@@ -1200,7 +1190,7 @@
         <div class="box">
           <div class="step-indicator">Step 3 of 4</div>
           <h1>Romance Report Card</h1>
-          <p>This is your Current Partner's grade out of ten. <strong style="color:var(--red);">WARNING!</strong> Anything below 60% is an automatic fail.</p>
+          <p>This is your Current Partner's grade. <strong style="color:var(--red);">WARNING!</strong> Anything below 60% is an automatic fail.</p>
           <div class="score-display-big" id="autoScoreDisplay">—</div>
           <div class="score-context" id="scoreContextText"></div>
           <div class="nav">
@@ -1320,7 +1310,8 @@
             <p class="perceive-text">Perceive the Power of the Pendulum.</p>
           </div>
           <div class="nav">
-            <button class="btn btn-ghost" onclick="slideBack('s-step4-pendulum','s-step4-pattern')">← Back</button>
+            <button class="btn btn-ghost" onclick="pendulumBack()">← Back</button>
+            <button class="btn" id="pendulumPhaseBtn" onclick="nextPhase()">Next →</button>
             <button class="btn" id="pendulumNextBtn" onclick="finishPendulum()" style="display:none;">View The Results →</button>
           </div>
         </div>
@@ -1380,6 +1371,8 @@ const S = {
 };
 
 let dragSrcIdx = null;
+let touchDragSrc = null;
+let touchGhost = null;
 
 // ═══════════════════════════════════════════
 // PROGRESS BAR
@@ -1820,8 +1813,7 @@ function renderRankList() {
       '<span class="rank-num">' + (i < topN ? (i + 1) + '.' : '·') + '</span>' +
       '<span class="rank-text">' + trait.text + '</span>' +
       '<div class="partner-check">' +
-        '<input type="checkbox" id="' + cid + '"' + (trait.hasPartner ? ' checked' : '') + '>' +
-        '<label for="' + cid + '">Partner has</label>' +
+        '<input type="checkbox" id="' + cid + '" aria-label="Partner has"' + (trait.hasPartner ? ' checked' : '') + '>' +
       '</div>';
 
     // Checkbox change
@@ -1855,6 +1847,50 @@ function renderRankList() {
       dragSrcIdx = null;
     });
 
+    // ── Touch drag (mobile) ──
+    row.addEventListener('touchstart', e => {
+      touchDragSrc = parseInt(row.dataset.i);
+      const rect = row.getBoundingClientRect();
+      touchGhost = row.cloneNode(true);
+      touchGhost.style.cssText =
+        'position:fixed;pointer-events:none;opacity:0.85;z-index:1000;' +
+        'background:#111;border:1px solid var(--green);' +
+        'width:' + rect.width + 'px;left:' + rect.left + 'px;top:' + rect.top + 'px;' +
+        'padding:9px 4px;display:flex;align-items:center;gap:8px;';
+      document.body.appendChild(touchGhost);
+      row.style.opacity = '0.25';
+    }, { passive: true });
+
+    row.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (touchGhost) {
+        touchGhost.style.top = (touch.clientY - row.offsetHeight / 2) + 'px';
+      }
+      document.querySelectorAll('.trait-rank-item').forEach(r => r.classList.remove('drag-over'));
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetRow = el ? el.closest('.trait-rank-item') : null;
+      if (targetRow && targetRow !== row) targetRow.classList.add('drag-over');
+    }, { passive: false });
+
+    row.addEventListener('touchend', e => {
+      if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+      row.style.opacity = '';
+      document.querySelectorAll('.trait-rank-item').forEach(r => r.classList.remove('drag-over'));
+      const touch = e.changedTouches[0];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetRow = el ? el.closest('.trait-rank-item') : null;
+      if (targetRow && touchDragSrc !== null) {
+        const destIdx = parseInt(targetRow.dataset.i);
+        if (destIdx !== touchDragSrc) {
+          const moved = S.topTraits.splice(touchDragSrc, 1)[0];
+          S.topTraits.splice(destIdx, 0, moved);
+          renderRankList();
+        }
+      }
+      touchDragSrc = null;
+    });
+
     c.appendChild(row);
   });
 }
@@ -1866,11 +1902,11 @@ function goToScore() {
   const topN = Math.min(S.topTraits.length, 10);
   const checked = S.topTraits.slice(0, topN).filter(t => t.hasPartner).length;
   // Normalize to 0–10 scale
-  S.score = topN > 0 ? parseFloat((checked / topN * 10).toFixed(1)) : 0;
+  S.score = topN > 0 ? parseFloat((checked / topN * 100).toFixed(1)) : 0;
 
   const big = document.getElementById('autoScoreDisplay');
-  big.textContent = S.score.toFixed(1) + ' / 10';
-  big.style.color = S.score < 6 ? 'var(--red)' : 'var(--green)';
+  big.textContent = Math.round(S.score) + '%';
+  big.style.color = S.score < 60 ? 'var(--red)' : 'var(--green)';
 
   document.getElementById('scoreContextText').textContent =
     checked + ' of ' + topN + ' traits matched';
@@ -1879,7 +1915,7 @@ function goToScore() {
 }
 
 function submitScore() {
-  if (S.score < 6) slideForward('s-step3-score', 's-gate');
+  if (S.score < 60) slideForward('s-step3-score', 's-gate');
   else slideForward('s-step3-score', 's-step4-pattern');
 }
 
@@ -1953,7 +1989,7 @@ function initPendulum() {
   S.currentPos = 50;
   document.getElementById('labelLeft').textContent  = S.patternLeft;
   document.getElementById('labelRight').textContent = S.patternRight;
-  document.getElementById('partnerAxis').style.display = 'none';
+  document.getElementById('partnerAxis').style.display = 'block';
   document.getElementById('partnerAxis').innerHTML = '';
   document.getElementById('perceiveMsg').style.display = 'none';
   document.getElementById('pendulumNextBtn').style.display = 'none';
@@ -1965,6 +2001,24 @@ function renderPlacementPhase() {
   const area  = document.getElementById('placementArea');
   const left  = S.patternLeft;
   const right = S.patternRight;
+  const phaseBtn = document.getElementById('pendulumPhaseBtn');
+
+  // Update the static phase button
+  if (S.placementPhase === 'previous') {
+    phaseBtn.textContent = 'Next →';
+    phaseBtn.disabled = S.prevPartners.length === 0;
+    phaseBtn.style.display = '';
+  } else if (S.placementPhase === 'ideal') {
+    phaseBtn.textContent = 'Next →';
+    phaseBtn.disabled = false;
+    phaseBtn.style.display = '';
+  } else if (S.placementPhase === 'current') {
+    phaseBtn.textContent = 'Done';
+    phaseBtn.disabled = false;
+    phaseBtn.style.display = '';
+  } else {
+    phaseBtn.style.display = 'none';
+  }
 
   if (S.placementPhase === 'previous') {
     area.innerHTML =
@@ -1973,14 +2027,11 @@ function renderPlacementPhase() {
         '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
         '<input type="range" id="prevSlider" min="0" max="100" value="50">' +
         '<div class="prev-partner-row" style="margin-top:12px;">' +
-          '<input type="text" id="prevName" placeholder="Previous Partner name" onkeydown="if(event.key===\'Enter\')addPrevPartner()">' +
+          '<input type="text" id="prevName" placeholder="' + (window.innerWidth <= 600 ? 'Previous Partner' : 'Previous Partner name') + '" onkeydown="if(event.key===\'Enter\')addPrevPartner()">' +
           '<button class="btn" onclick="addPrevPartner()">Add</button>' +
         '</div>' +
         '<div id="placedList"></div>' +
-        '<div class="nav" style="margin-top:14px;">' +
-          '<button class="btn btn-ghost" onclick="slideBack(\'s-step4-pendulum\',\'s-step4-pattern\')">← Back</button>' +
-          '<button class="btn" id="prevPhaseNextBtn" onclick="nextPhase()" ' + (S.prevPartners.length > 0 ? '' : 'disabled') + '>Next →</button>' +
-        '</div>' +
+        '' +
       '</div>';
     renderPlacedPartners();
 
@@ -1990,10 +2041,6 @@ function renderPlacementPhase() {
         '<p>Use the slider below to place your <em>Ideal Partner</em> along The Pendulum.</p>' +
         '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
         '<input type="range" id="idealSlider" min="0" max="100" value="' + S.idealPos + '">' +
-        '<div class="nav" style="margin-top:14px;">' +
-          '<button class="btn btn-ghost" onclick="prevPhase()">← Back</button>' +
-          '<button class="btn" onclick="nextPhase()">Next →</button>' +
-        '</div>' +
       '</div>';
 
   } else if (S.placementPhase === 'current') {
@@ -2002,10 +2049,7 @@ function renderPlacementPhase() {
         '<p>Use the slider below to place your <em>Current Partner</em> along The Pendulum.</p>' +
         '<div class="spectrum-labels"><span>' + left + '</span><span>' + right + '</span></div>' +
         '<input type="range" id="currentSlider" min="0" max="100" value="' + S.currentPos + '">' +
-        '<div class="nav" style="margin-top:14px;">' +
-          '<button class="btn btn-ghost" onclick="prevPhase()">← Back</button>' +
-          '<button class="btn" onclick="nextPhase()">Done</button>' +
-        '</div>' +
+        '' +
       '</div>';
   }
 }
@@ -2020,14 +2064,16 @@ function addPrevPartner() {
   nameInp.value = '';
   nameInp.focus();
   renderPlacedPartners();
-  document.getElementById('prevPhaseNextBtn').disabled = false;
+  renderPartnerAxis();
+  document.getElementById('pendulumPhaseBtn').disabled = false;
 }
 
 function removePrevPartner(idx) {
   S.prevPartners.splice(idx, 1);
   renderPlacedPartners();
+  renderPartnerAxis();
   if (S.prevPartners.length === 0) {
-    const btn = document.getElementById('prevPhaseNextBtn');
+    const btn = document.getElementById('pendulumPhaseBtn');
     if (btn) btn.disabled = true;
   }
 }
@@ -2046,34 +2092,48 @@ function renderPlacedPartners() {
   });
 }
 
+function pendulumBack() {
+  if (S.placementPhase === 'previous') {
+    slideBack('s-step4-pendulum', 's-step4-pattern');
+  } else {
+    prevPhase();
+  }
+}
+
 function prevPhase() {
   if (S.placementPhase === 'ideal') {
     S.placementPhase = 'previous';
   } else if (S.placementPhase === 'current') {
-    const sl = document.getElementById('currentSlider');
-    S.currentPos = sl ? parseInt(sl.value) : 50;
     S.placementPhase = 'ideal';
+  } else if (S.placementPhase === 'done') {
+    S.placementPhase = 'current';
+    document.getElementById('perceiveMsg').style.display = 'none';
+    document.getElementById('pendulumNextBtn').style.display = 'none';
   }
+  renderPartnerAxis();
   renderPlacementPhase();
 }
 
 function nextPhase() {
   if (S.placementPhase === 'previous') {
     S.placementPhase = 'ideal';
+    renderPartnerAxis();
   } else if (S.placementPhase === 'ideal') {
     const sl = document.getElementById('idealSlider');
     S.idealPos = sl ? parseInt(sl.value) : 50;
     S.placementPhase = 'current';
+    renderPartnerAxis();
   } else if (S.placementPhase === 'current') {
     const sl = document.getElementById('currentSlider');
     S.currentPos = sl ? parseInt(sl.value) : 50;
+    S.placementPhase = 'done';
     // All placed — render axis, show perceive + next button
     updateProgressBar('s-step4-pendulum'); // phase=current → node 12
     document.getElementById('placementArea').innerHTML = '';
     renderPartnerAxis();
-    document.getElementById('partnerAxis').style.display = 'block';
     document.getElementById('perceiveMsg').style.display = 'block';
     document.getElementById('pendulumNextBtn').style.display = 'inline-block';
+    document.getElementById('pendulumPhaseBtn').style.display = 'none';
     return;
   }
   updateProgressBar('s-step4-pendulum');
@@ -2085,10 +2145,15 @@ function renderPartnerAxis() {
   axis.innerHTML = '';
 
   const points = [
-    ...S.prevPartners.map(p => ({ name: p.name, pos: p.pos, color: 'var(--gray)' })),
-    { name: 'Ideal', pos: S.idealPos, color: 'var(--white)' },
-    { name: 'Current', pos: S.currentPos, color: 'var(--green)' }
+    ...S.prevPartners.map(p => ({ name: p.name, pos: p.pos, color: 'var(--gray)' }))
   ];
+  if (S.placementPhase === 'current' || S.placementPhase === 'done') {
+    points.push({ name: 'Ideal', pos: S.idealPos, color: 'var(--white)' });
+  }
+  if (S.placementPhase === 'done') {
+    points.push({ name: 'Current', pos: S.currentPos, color: 'var(--green)' });
+  }
+  if (points.length === 0) return;
 
   // Sort by position for overlap detection
   points.sort((a, b) => a.pos - b.pos);
@@ -2147,6 +2212,14 @@ function posLabel(pos, left, right) {
   return 'strongly ' + right;
 }
 
+function posColor(pos, idealPos) {
+  const isStrong = p => p <= 15 || p >= 86;
+  const side = p => p <= 35 ? 'left' : p <= 65 ? 'center' : 'right';
+  if (!isStrong(pos)) return '#777'; // leaning or balanced → grey
+  if (side(pos) === side(idealPos)) return 'var(--green)'; // strongly same → green
+  return 'var(--red)'; // strongly opposite → red
+}
+
 function renderResults() {
   const topN      = Math.min(S.topTraits.length, 10);
   const matchCount = S.topTraits.slice(0, topN).filter(t => t.hasPartner).length;
@@ -2155,7 +2228,7 @@ function renderResults() {
   let step4html = '';
   if (!S.failedGate) {
     const prevRows = S.prevPartners.map(p =>
-      '<p>— ' + p.name + ': <span style="color:#777;">' +
+      '<p>— ' + p.name + ': <span style="color:' + posColor(p.pos, S.idealPos) + ';">' +
       posLabel(p.pos, S.patternLeft, S.patternRight) + '</span></p>'
     ).join('');
     step4html =
@@ -2163,8 +2236,8 @@ function renderResults() {
         '<div class="results-block-title">The Previous Partnership Pendulum</div>' +
         '<p style="margin-bottom:10px;">Prominent Partnership Pattern: <span style="font-family:\'Source Code Pro\',monospace;color:var(--green);">' + S.patternLeft + ' / ' + S.patternRight + '</span></p>' +
         prevRows +
-        '<p>— Ideal Partner: <span style="color:#777;">' + posLabel(S.idealPos, S.patternLeft, S.patternRight) + '</span></p>' +
-        '<p>— Current Partner: <span style="color:var(--green);">' + posLabel(S.currentPos, S.patternLeft, S.patternRight) + '</span></p>' +
+        '<p>— Ideal Partner: <span style="color:var(--green);">' + posLabel(S.idealPos, S.patternLeft, S.patternRight) + '</span></p>' +
+        '<p>— Current Partner: <span style="color:' + posColor(S.currentPos, S.idealPos) + ';">' + posLabel(S.currentPos, S.patternLeft, S.patternRight) + '</span></p>' +
       '</div>';
   }
 
@@ -2186,7 +2259,7 @@ function renderResults() {
     '</div>'
   ).join('');
 
-  const failBadge = S.score < 6
+  const failBadge = S.score < 60
     ? ' <span style="font-family:\'Source Code Pro\',monospace;font-size:0.62rem;color:var(--red);letter-spacing:0.05em;">(Automatic Fail)</span>'
     : '';
 
@@ -2211,8 +2284,8 @@ function renderResults() {
 
     '<div class="results-block">' +
       '<div class="results-block-title">Romance Report Card</div>' +
-      '<p style="margin-bottom:12px;">Score: <span style="font-family:\'Source Code Pro\',monospace;font-size:1.1rem;color:' + (S.score < 6 ? 'var(--red)' : 'var(--green)') + ';">' +
-        S.score.toFixed(1) + '/10' + failBadge + '</span></p>' +
+      '<p style="margin-bottom:12px;">Score: <span style="font-family:\'Source Code Pro\',monospace;font-size:1.1rem;color:' + (S.score < 60 ? 'var(--red)' : 'var(--green)') + ';">' +
+        Math.round(S.score) + '%' + failBadge + '</span></p>' +
       '<p style="font-size:0.72rem;color:#777;font-family:\'Source Code Pro\',monospace;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Current Partner has ' + matchCount + ' of ' + total + ' evaluated traits.</p>' +
       traitsHtml +
     '</div>' +
@@ -2231,13 +2304,13 @@ function generateVerdict(matchCount, total) {
   const cons     = S.cons.length;
   const traitPct = total > 0 ? matchCount / total : 0;
 
-  const hardFail  = score < 6;
+  const hardFail  = score < 60;
   const heavyCons = cons > pros * 1.5;
   const heavyPros = pros > cons * 1.5;
   const lowMatch  = traitPct < 0.4;
   const highMatch = traitPct >= 0.7;
-  const highScore = score >= 8;
-  const midScore  = score >= 6 && score < 8;
+  const highScore = score >= 80;
+  const midScore  = score >= 60 && score < 80;
 
   // Step 4 proximity factor (if completed)
   const pendulumDelta = Math.abs(S.currentPos - S.idealPos);
@@ -2513,25 +2586,29 @@ function loadBgElements() {
 
   // [src, width-px, opacity]
   const specs = [
-    [BASE+'background-element-1.svg',   175, 0.28],
-    [BASE+'background-element-1.svg',   105, 0.16],
-    [BASE+'background-element-1.svg',   78,  0.11],
-    [BASE+'background-element-3.svg',   155, 0.26],
-    [BASE+'background-element-3.svg',   98,  0.18],
-    [BASE+'background-element-3.svg',   68,  0.12],
+    [BASE+'background-element-1.svg',   175, 0.45],
+    [BASE+'background-element-1.svg',   105, 0.32],
+    [BASE+'background-element-1.svg',   78,  0.22],
+    [BASE+'background-element-3-2.png',   155, 0.26],
+    [BASE+'background-element-3-2.png',   98,  0.18],
+    [BASE+'background-element-3-2.png',   68,  0.12],
     [BASE+'background-element-4.svg',   145, 0.24],
     [BASE+'background-element-4.svg',   82,  0.14],
-    [BASE+'background-element-4-1.png', 195, 0.20],
-    [BASE+'background-element-4-1.png', 125, 0.13],
+    [BASE+'background-element-4-1.png', 260, 0.38],
+    [BASE+'background-element-4-1.png', 175, 0.28],
+    [BASE+'broken-heart.png', 160, 0.24],
+    [BASE+'broken-heart.png', 100, 0.16],
     [BASE+'background-element-6.png',   145, 0.26],
     [BASE+'background-element-6.png',   88,  0.15],
-    [BASE+'background-element-8.svg',   128, 0.22],
-    [BASE+'background-element-8.svg',   74,  0.13],
+    [BASE+'warning-sign.png',   200, 0.28],
+    [BASE+'warning-sign.png',   130, 0.18],
     [BASE+'background-element-10.svg',  155, 0.24],
     [BASE+'background-element-10.svg',  92,  0.16],
     [BASE+'background-element-10.svg',  64,  0.11],
-    [BASE+'background-element-11.svg',  138, 0.22],
-    [BASE+'background-element-11.svg',  86,  0.14],
+    [BASE+'background-element-11.svg',  210, 0.26],
+    [BASE+'background-element-11.svg',  140, 0.18],
+    [BASE+'question-mark.png',          180, 0.24],
+    [BASE+'question-mark.png',          110, 0.16],
     [BASE+'Background-text.svg',        680, 0.8],
   ];
 
