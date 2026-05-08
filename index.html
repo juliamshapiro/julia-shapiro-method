@@ -257,7 +257,7 @@
 
     /* ── Warning block ── */
     .warning-block {
-      border: 1px solid var(--green);
+      border: 1px solid var(--red);
       padding: 16px 20px;
       margin: 20px 0 28px;
     }
@@ -436,7 +436,7 @@
 
     .counter {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.65rem;
+      font-size: 0.74rem;
       color: var(--gray);
       text-align: right;
       margin-bottom: 4px;
@@ -475,12 +475,22 @@
       transition: all 0.15s;
       min-width: 72px;
     }
-    .tag-btn:hover { border-color: var(--green); color: var(--green); }
-    .tag-btn.selected { border-color: var(--green); color: var(--green); background: #001a0d; }
+    /* :) — green */
+    .tag-btn:nth-child(1).selected { border-color: var(--green); color: #000; background: var(--green); }
+    /* :| — light grey */
+    .tag-btn:nth-child(2).selected { border-color: #aaa; color: #000; background: #aaa; }
+    /* :( — red */
+    .tag-btn:nth-child(3).selected { border-color: var(--red); color: #000; background: var(--red); }
+    /* Hover only on devices that support it (not touch) */
+    @media (hover: hover) {
+      .tag-btn:nth-child(1):hover:not(.selected) { border-color: var(--green); color: var(--green); }
+      .tag-btn:nth-child(2):hover:not(.selected) { border-color: #aaa; color: #aaa; }
+      .tag-btn:nth-child(3):hover:not(.selected) { border-color: var(--red); color: var(--red); }
+    }
 
     .tag-progress {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.65rem;
+      font-size: 0.74rem;
       color: var(--gray);
       letter-spacing: 0.1em;
       text-align: center;
@@ -501,7 +511,8 @@
     .pros-col { border-right: 1px solid var(--green); }
     .list-col-header {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.68rem;
+      font-size: 0.82rem;
+      font-weight: 700;
       color: var(--green);
       text-transform: uppercase;
       letter-spacing: 0.12em;
@@ -647,13 +658,15 @@
       flex: 1;
       font-family: "Source Code Pro", monospace;
       font-size: 0.62rem;
-      color: #444;
+      font-weight: 700;
+      color: #777;
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
     .rank-header-check {
       font-family: "Source Code Pro", monospace;
       font-size: 0.62rem;
+      font-weight: 700;
       color: #777;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -899,7 +912,8 @@
     }
     .results-block-title {
       font-family: "Source Code Pro", monospace;
-      font-size: 0.75rem;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: var(--green);
       text-transform: uppercase;
       letter-spacing: 0.14em;
@@ -980,6 +994,7 @@
     .determination-label {
       font-family: "Source Code Pro", monospace;
       font-size: 0.65rem;
+      font-weight: 700;
       color: var(--gray);
       text-transform: uppercase;
       letter-spacing: 0.18em;
@@ -1083,13 +1098,13 @@
         <div class="box">
           <div class="step-indicator">Step 1 of 4</div>
           <h1>Miss Match's Mind Map</h1>
-          <p>Create a Mind Map with at least 15 branches of anything that comes to mind when you think about the person you are romantically entwined with and your relationship to Said Person. Feel free to be abstract and free associate. This exercise works best when you are nonjudgmental with yourself, allowing any thoughts that arise to come through without resistance.</p>
+          <p>Create a Mind Map with at least 10 branches of anything that comes to mind when you think about the person you are romantically entwined with and your relationship to Said Person. Feel free to be abstract and free associate. This exercise works best when you are nonjudgmental with yourself, allowing any thoughts that arise to come through without resistance.</p>
           <div style="display:flex;gap:10px;margin-top:16px;">
             <input type="text" id="thoughtInput" placeholder="type a thought and press enter" onkeydown="if(event.key==='Enter')addThought()">
             <button class="btn" onclick="addThought()" style="white-space:nowrap;">Add</button>
           </div>
           <div class="thoughts-wrap" id="thoughtsWrap"></div>
-          <div class="counter" id="thoughtCounter">0 / 15 minimum</div>
+          <div class="counter" id="thoughtCounter">0 / 10 minimum</div>
           <div class="nav">
             <button class="btn btn-ghost" onclick="reverseToLanding()">← Back</button>
             <button class="btn" id="step1NextBtn" onclick="initStep2()" disabled>Next →</button>
@@ -1107,9 +1122,9 @@
           <div class="tag-card">
             <div class="thought-text" id="tagThoughtText"></div>
             <div class="tag-buttons">
-              <button class="tag-btn" onclick="tagThought('positive')">:)</button>
-              <button class="tag-btn" onclick="tagThought('neutral')">:|</button>
-              <button class="tag-btn" onclick="tagThought('negative')">:(</button>
+              <button class="tag-btn" onclick="tagThought('positive', this)">:)</button>
+              <button class="tag-btn" onclick="tagThought('neutral', this)">:|</button>
+              <button class="tag-btn" onclick="tagThought('negative', this)">:(</button>
             </div>
           </div>
           <div class="nav">
@@ -1237,7 +1252,7 @@
       <div class="screen" id="s-step4-pattern">
         <div class="box">
           <div class="step-indicator">Step 4 of 4</div>
-          <h1>The Previous Partnership Pendulum</h1>
+          <h1>Previous Partnership Pendulum</h1>
           <p>When choosing a partner, people commonly swing between two extremes of personality types. A negative experience on one side of the spectrum can push them toward seeking its opposite in the future.</p>
           <p>Take a moment to consider your past relationships and identify your <strong>Prominent Partnership Pattern</strong>: are two of your Previous Partners on opposite ends of your Romantic Spectrum? What qualities do they have that differ? Feel free to enter in your own response.</p>
           <div class="pattern-list" id="patternList">
@@ -1279,7 +1294,7 @@
       <div class="screen" id="s-step4-pendulum">
         <div class="box">
           <div class="step-indicator">Step 4 of 4</div>
-          <h1>The Previous Partnership Pendulum</h1>
+          <h1>Previous Partnership Pendulum</h1>
 
           <!-- Pendulum animation -->
           <div class="pendulum-scene">
@@ -1619,8 +1634,8 @@ function renderThoughts() {
   });
   const n = S.thoughts.length;
   const ctr = document.getElementById('thoughtCounter');
-  ctr.textContent = n + ' / 15 minimum';
-  if (n >= 15) {
+  ctr.textContent = n + ' / 10 minimum';
+  if (n >= 10) {
     ctr.classList.add('ready');
     document.getElementById('step1NextBtn').disabled = false;
   } else {
@@ -1648,7 +1663,7 @@ function removeThought(i) {
 // STEP 2A: TAGGING
 // ═══════════════════════════════════════════
 function initStep2() {
-  if (S.thoughts.length < 15) return;
+  if (S.thoughts.length < 10) return;
   S.tagQueue = [...S.thoughts];
   S.tagIndex = 0;
   S.tagHistory = [];
@@ -1677,13 +1692,16 @@ function showTag() {
   document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
 }
 
-function tagThought(sentiment) {
+function tagThought(sentiment, btn) {
   const t = S.tagQueue[S.tagIndex];
   if (sentiment === 'positive') S.pros.push(t);
   else if (sentiment === 'negative') S.cons.push(t);
   S.tagHistory.push({ thought: t, sentiment });
   S.tagIndex++;
-  showTag();
+  // Flash the selected state briefly before advancing
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
+  if (btn) btn.classList.add('selected');
+  setTimeout(showTag, 280);
 }
 
 function untagThought() {
@@ -2233,7 +2251,7 @@ function renderResults() {
     ).join('');
     step4html =
       '<div class="results-block">' +
-        '<div class="results-block-title">The Previous Partnership Pendulum</div>' +
+        '<div class="results-block-title">Previous Partnership Pendulum</div>' +
         '<p style="margin-bottom:10px;">Prominent Partnership Pattern: <span style="font-family:\'Source Code Pro\',monospace;color:var(--green);">' + S.patternLeft + ' / ' + S.patternRight + '</span></p>' +
         prevRows +
         '<p>— Ideal Partner: <span style="color:var(--green);">' + posLabel(S.idealPos, S.patternLeft, S.patternRight) + '</span></p>' +
@@ -2287,6 +2305,10 @@ function renderResults() {
       '<p style="margin-bottom:12px;">Score: <span style="font-family:\'Source Code Pro\',monospace;font-size:1.1rem;color:' + (S.score < 60 ? 'var(--red)' : 'var(--green)') + ';">' +
         Math.round(S.score) + '%' + failBadge + '</span></p>' +
       '<p style="font-size:0.72rem;color:#777;font-family:\'Source Code Pro\',monospace;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Current Partner has ' + matchCount + ' of ' + total + ' evaluated traits.</p>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;margin-bottom:4px;border-bottom:1px solid #222;">' +
+        '<span style="font-family:\'Source Code Pro\',monospace;font-size:0.72rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.1em;">Trait</span>' +
+        '<span style="font-family:\'Source Code Pro\',monospace;font-size:0.72rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.1em;">Partner has</span>' +
+      '</div>' +
       traitsHtml +
     '</div>' +
 
@@ -2352,7 +2374,7 @@ function resetAll() {
 
   // Reset visible DOM
   document.getElementById('thoughtsWrap').innerHTML = '';
-  document.getElementById('thoughtCounter').textContent = '0 / 15 minimum';
+  document.getElementById('thoughtCounter').textContent = '0 / 10 minimum';
   document.getElementById('thoughtCounter').classList.remove('ready');
   document.getElementById('step1NextBtn').disabled = true;
   document.getElementById('thoughtInput').value = '';
